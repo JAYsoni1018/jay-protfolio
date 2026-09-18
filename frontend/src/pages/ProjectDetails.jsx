@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { Github, ExternalLink, ArrowLeft } from 'lucide-react'
+import { GitBranch, ExternalLink, ArrowLeft } from 'lucide-react'
 import Navbar from '../components/navbar/Navbar'
 import ProjectGallery from '../components/projects/ProjectGallery'
 import RichTextRenderer from '../components/common/RichTextRenderer'
@@ -82,7 +82,7 @@ const ProjectDetails = () => {
                     <div className="mt-6 flex gap-3">
                         {project.githubUrl && (
                             <a href={project.githubUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-full border border-slate-300 px-5 py-2.5 text-sm font-semibold transition hover:bg-slate-100 dark:border-slate-700 dark:hover:bg-slate-800">
-                                <Github size={16} /> GitHub
+                                <GitBranch size={16} /> GitHub
                             </a>
                         )}
                         {project.liveDemoUrl && (

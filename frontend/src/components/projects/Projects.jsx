@@ -4,6 +4,7 @@ import ScrollReveal from '../common/ScrollReveal'
 import ProjectCard from './ProjectCard'
 import ProjectFilters from './ProjectFilters'
 import { projectsApi } from '../../services/resources'
+import { ProjectCardSkeleton } from '../common/Skeleton'
 
 const Projects = () => {
     const [projects, setProjects] = useState([])

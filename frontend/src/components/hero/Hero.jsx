@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
-import { Github, Linkedin, Download, ArrowRight } from 'lucide-react'
+import { GitBranch, BriefcaseBusiness, Download, ArrowRight } from 'lucide-react'
 import { heroApi } from '../../services/resources'
 
 const Hero = () => {
@@ -86,12 +86,12 @@ const Hero = () => {
                     <div className="mt-8 flex items-center gap-4">
                         {hero.githubUrl && (
                             <a href={hero.githubUrl} target="_blank" rel="noopener noreferrer" className="rounded-full border border-slate-300 p-2.5 transition hover:bg-slate-100 dark:border-slate-700 dark:hover:bg-slate-800">
-                                <Github size={18} />
+                                <GitBranch size={18} />
                             </a>
                         )}
                         {hero.linkedinUrl && (
                             <a href={hero.linkedinUrl} target="_blank" rel="noopener noreferrer" className="rounded-full border border-slate-300 p-2.5 transition hover:bg-slate-100 dark:border-slate-700 dark:hover:bg-slate-800">
-                                <Linkedin size={18} />
+                                <BriefcaseBusiness size={18} />
                             </a>
                         )}
                     </div>

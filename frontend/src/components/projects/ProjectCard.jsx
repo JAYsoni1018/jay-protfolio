@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { Github, ExternalLink, ArrowUpRight } from 'lucide-react'
+import { GitBranch, ExternalLink, ArrowUpRight } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
 const ProjectCard = ({ project }) => {
@@ -43,7 +43,7 @@ const ProjectCard = ({ project }) => {
                             onClick={(e) => e.stopPropagation()}
                             className="rounded-full bg-white p-2.5 text-slate-900 transition hover:scale-110"
                         >
-                            <Github size={18} />
+                            <GitBranch size={18} />
                         </a>
                     )}
                     {project.liveDemoUrl && (
