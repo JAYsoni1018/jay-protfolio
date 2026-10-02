@@ -3,7 +3,7 @@ import { Plus, Pencil, Trash2 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import Modal from '../../components/admin/Modal'
 import ImageUploader from '../../components/admin/ImageUploader'
-import { certificatesApi } from '../../services/resources'
+import { certificatesApi, uploadApi } from '../../services/resources'
 
 const emptyCertificate = {
     title: '', issuingOrganization: '', issueDate: '', expiryDate: '',
@@ -122,11 +122,21 @@ const AdminCertificates = () => {
                     <div>
                         <label className="text-sm font-medium">Certificate Image</label>
                         <div className="mt-1">
+                            {/* <ImageUploader
+                                images={form.image ? [{ ...form.image, isPrimary: true }] : []}
+                                onChange={(images) => setForm({ ...form, image: images[0] || null })}
+                                folder="certificates"
+                            /> */}
+
                             <ImageUploader
                                 images={form.image ? [{ ...form.image, isPrimary: true }] : []}
                                 onChange={(images) => setForm({ ...form, image: images[0] || null })}
                                 folder="certificates"
+                                multiple={false}
+                                uploadFn={uploadApi.certificate}
+                                accept="image/*,application/pdf"
                             />
+
                         </div>
                     </div>
 

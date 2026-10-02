@@ -8,6 +8,7 @@ import RichTextRenderer from '../components/common/RichTextRenderer'
 import { projectsApi } from '../services/resources'
 import { formatDate } from '../utils/formatDate'
 import SEO from '../components/common/SEO'
+import { FaGithub } from 'react-icons/fa'
 
 const ProjectDetails = () => {
     const { slug } = useParams()
@@ -82,7 +83,7 @@ const ProjectDetails = () => {
                     <div className="mt-6 flex gap-3">
                         {project.githubUrl && (
                             <a href={project.githubUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-full border border-slate-300 px-5 py-2.5 text-sm font-semibold transition hover:bg-slate-100 dark:border-slate-700 dark:hover:bg-slate-800">
-                                <GitBranch size={16} /> GitHub
+                                <FaGithub size="18" />  GitHub
                             </a>
                         )}
                         {project.liveDemoUrl && (
@@ -92,7 +93,6 @@ const ProjectDetails = () => {
                         )}
                     </div>
                 </motion.div>
-                //no idea this is right location or not
                 <SEO
                     title={project.title}
                     description={project.shortDescription}

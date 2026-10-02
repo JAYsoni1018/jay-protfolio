@@ -82,10 +82,17 @@ const AdminAchievements = () => {
                     <div>
                         <label className="text-sm font-medium">Certificate/Image</label>
                         <div className="mt-1">
+                            {/* <ImageUploader
+                                images={form.image ? [{ ...form.image, isPrimary: true }] : []}
+                                onChange={(images) => setForm({ ...form, image: images[0] || null })}
+                                folder="achievements"
+                            /> */}
+
                             <ImageUploader
                                 images={form.image ? [{ ...form.image, isPrimary: true }] : []}
                                 onChange={(images) => setForm({ ...form, image: images[0] || null })}
                                 folder="achievements"
+                                multiple={false}
                             />
                         </div>
                     </div>

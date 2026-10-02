@@ -22,7 +22,13 @@ const AdminPublications = () => {
 
     const openAdd = () => { setForm(emptyPublication); setEditing(null); setModalOpen(true) }
     const openEdit = (item) => {
-        setForm({ ...item, publicationDate: item.publicationDate?.slice(0, 10) || '' })
+        setForm({
+            ...emptyPublication,
+            ...item,
+            authors: Array.isArray(item.authors) ? item.authors : [],
+            tags: Array.isArray(item.tags) ? item.tags : [],
+            publicationDate: item.publicationDate?.slice(0, 10) || '',
+        })
         setEditing(item._id)
         setModalOpen(true)
     }

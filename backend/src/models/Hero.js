@@ -1,5 +1,5 @@
 // backend/src/models/Hero.js
-import mongoose from 'mongoose'
+import mongoose from "mongoose";
 
 const heroSchema = new mongoose.Schema(
   {
@@ -14,8 +14,10 @@ const heroSchema = new mongoose.Schema(
     resumeUrl: String,
     githubUrl: String,
     linkedinUrl: String,
+    email: String,
+    phone: String,
   },
-  { timestamps: true }
-)
+  { timestamps: true },
+);
 
-export default mongoose.model('Hero', heroSchema)
+export default mongoose.model("Hero", heroSchema);

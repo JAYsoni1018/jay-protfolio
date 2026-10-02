@@ -1,6 +1,8 @@
 import { motion } from 'framer-motion'
 import { GitBranch, ExternalLink, ArrowUpRight } from 'lucide-react'
+import { FaGithub } from 'react-icons/fa'
 import { Link } from 'react-router-dom'
+
 
 const ProjectCard = ({ project }) => {
     const thumbnail = project.thumbnail?.url || project.images?.[0]?.url
@@ -43,7 +45,7 @@ const ProjectCard = ({ project }) => {
                             onClick={(e) => e.stopPropagation()}
                             className="rounded-full bg-white p-2.5 text-slate-900 transition hover:scale-110"
                         >
-                            <GitBranch size={18} />
+                            <FaGithub size="18" />
                         </a>
                     )}
                     {project.liveDemoUrl && (

@@ -9,7 +9,10 @@ const Experience = () => {
     const [items, setItems] = useState([])
 
     useEffect(() => {
-        experienceApi.getAll().then((res) => setItems(res.data.data)).catch(() => { })
+        experienceApi.getAll().then((res) => {
+            const sorted = [...res.data.data].sort((a, b) => b.displayOrder - a.displayOrder)
+            setItems(sorted)
+        }).catch(() => { })
     }, [])
 
     if (items.length === 0) return null

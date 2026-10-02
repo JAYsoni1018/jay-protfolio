@@ -61,10 +61,17 @@ const AboutEditor = () => {
                 <div>
                     <label className="text-sm font-medium">Profile Image</label>
                     <div className="mt-1">
+                        {/* <ImageUploader
+                            images={form.profileImage ? [{ ...form.profileImage, isPrimary: true }] : []}
+                            onChange={(images) => setForm({ ...form, profileImage: images[0] || null })}
+                            folder="about"
+                        /> */}
+
                         <ImageUploader
                             images={form.profileImage ? [{ ...form.profileImage, isPrimary: true }] : []}
                             onChange={(images) => setForm({ ...form, profileImage: images[0] || null })}
                             folder="about"
+                            multiple={false}
                         />
                     </div>
                 </div>

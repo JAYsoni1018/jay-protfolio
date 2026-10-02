@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
-import { BadgeCheck, ExternalLink } from 'lucide-react'
+import { BadgeCheck, ExternalLink, Download } from 'lucide-react'
 import ScrollReveal from '../common/ScrollReveal'
 import { certificatesApi } from '../../services/resources'
 import { formatDate } from '../../utils/formatDate'
@@ -18,7 +18,7 @@ const Certificates = () => {
         <section id="certificates" className="mx-auto max-w-7xl px-6 py-24">
             <ScrollReveal>
                 <h2 className="text-3xl font-bold sm:text-4xl">
-                    <span className="text-indigo-500">Certificates</span>
+                    <span className="text-indigo-500">Certificatesssss</span>
                 </h2>
             </ScrollReveal>
 
@@ -30,7 +30,19 @@ const Certificates = () => {
                             className="h-full overflow-hidden rounded-2xl border border-slate-200 transition-shadow hover:shadow-lg dark:border-slate-800"
                         >
                             {cert.image?.url && (
-                                <img src={cert.image.url} alt={cert.title} className="h-40 w-full object-cover" />
+                                <div className="group/img relative h-40 w-full overflow-hidden">
+                                    <img src={cert.image.url} alt={cert.title} className="h-full w-full object-cover" />
+                                    <a
+                                        href={cert.image.url}
+                                        download
+                                        onClick={(e) => e.stopPropagation()}
+                                        className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 transition-opacity group-hover/img:opacity-100"
+                                    >
+                                        <span className="rounded-full bg-white p-2.5 text-slate-900">
+                                            <Download size={16} />
+                                        </span>
+                                    </a>
+                                </div>
                             )}
 
                             <div className="p-5">
@@ -58,16 +70,27 @@ const Certificates = () => {
                                     </div>
                                 )}
 
-                                {cert.credentialUrl && (
-                                    <a
-                                        href={cert.credentialUrl}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-indigo-500 hover:underline"
-                                    >
-                                        View Credential <ExternalLink size={13} />
-                                    </a>
-                                )}
+                                <div className="mt-4 flex items-center gap-4">
+                                    {cert.credentialUrl && (
+                                        <a
+                                            href={cert.credentialUrl}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="inline-flex items-center gap-1 text-sm font-medium text-indigo-500 hover:underline"
+                                        >
+                                            View Credential <ExternalLink size={13} />
+                                        </a>
+                                    )}
+                                    {cert.image?.url && (
+                                        <a
+                                            href={cert.image.url}
+                                            download
+                                            className="inline-flex items-center gap-1 text-sm font-medium text-indigo-500 hover:underline"
+                                        >
+                                            Download <Download size={13} />
+                                        </a>
+                                    )}
+                                </div>
                             </div>
                         </motion.div>
                     </ScrollReveal>

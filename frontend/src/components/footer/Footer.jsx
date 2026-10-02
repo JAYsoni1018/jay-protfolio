@@ -1,12 +1,27 @@
 import { useEffect, useState } from 'react'
-import { ArrowUp } from 'lucide-react'
-import * as Icons from 'lucide-react'
+import { ArrowUp, Phone } from 'lucide-react'
+import { FaEnvelope, FaGithub, FaInstagram, FaLinkedin, FaPhone, FaTwitter, FaYoutube } from 'react-icons/fa'
+import { Link } from 'lucide-react'
 import { heroApi, socialLinksApi } from '../../services/resources'
 
 const iconFor = (platform) => {
-    const map = { GitHub: 'Github', LinkedIn: 'Linkedin', Email: 'Mail', Instagram: 'Instagram', 'X/Twitter': 'Twitter', YouTube: 'Youtube' }
-    const Icon = Icons[map[platform]] || Icons.Link
-    return Icon
+    const map = {
+        GitHub: FaGithub,
+        LinkedIn: FaLinkedin,
+        Email: FaEnvelope,
+        Phone: Phone,
+        Instagram: FaInstagram,
+        'X/Twitter': FaTwitter,
+        YouTube: FaYoutube,
+    }
+
+    return map[platform] || Link
+}
+
+const hrefFor = (platform, url) => {
+    if (!['Phone', 'Telephone', 'Mobile'].includes(platform) || url.startsWith('tel:')) return url
+
+    return `tel:${url.replace(/[^\d+]/g, '')}`
 }
 
 const Footer = () => {
@@ -36,7 +51,7 @@ const Footer = () => {
                             return (
                                 <a
                                     key={social._id}
-                                    href={social.url}
+                                    href={hrefFor(social.platform, social.url)}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="rounded-full border border-slate-200 p-2.5 transition hover:bg-slate-100 dark:border-slate-700 dark:hover:bg-slate-800"

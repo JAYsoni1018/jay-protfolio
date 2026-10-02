@@ -25,10 +25,27 @@ const SortableSection = ({ section, onToggle }) => {
 
 const AdminSettings = () => {
     const [sections, setSections] = useState([])
+    const [skillsMode, setSkillsMode] = useState('progress')
 
-    const load = () => sectionsApi.getAll().then((res) => setSections(res.data.data))
+
+    const load = () => {
+        sectionsApi.getAll().then((res) => {
+            setSections(res.data.data)
+            const skillsSection = res.data.data.find((s) => s.sectionKey === 'skills')
+            if (skillsSection) setSkillsMode(skillsSection.skillsDisplayMode || 'progress')
+        })
+    }
     useEffect(() => { load() }, [])
+    // const skillsSection = res.data.data.find((s) => s.sectionKey === 'skills')
+    // if (skillsSection) setSkillsMode(skillsSection.skillsDisplayMode || 'progress')
 
+    const handleSkillsModeChange = async (mode) => {
+        const skillsSection = sections.find((s) => s.sectionKey === 'skills')
+        if (!skillsSection) return
+        await sectionsApi.update(skillsSection._id, { skillsDisplayMode: mode })
+        setSkillsMode(mode)
+        toast.success('Skills display mode updated')
+    }
     const handleToggle = async (section) => {
         await sectionsApi.update(section._id, { enabled: !section.enabled })
         load()
@@ -62,6 +79,24 @@ const AdminSettings = () => {
                         </div>
                     </SortableContext>
                 </DndContext>
+                <div className="mt-8 rounded-2xl border border-slate-200 p-5 dark:border-slate-800">
+                    <h2 className="text-sm font-semibold">Skills Section Display</h2>
+                    <p className="mt-1 text-xs text-slate-400">Choose how skills appear on the public site.</p>
+                    <div className="mt-3 inline-flex rounded-full border border-slate-200 p-1 dark:border-slate-700">
+                        <button
+                            onClick={() => handleSkillsModeChange('progress')}
+                            className={`rounded-full px-4 py-1.5 text-sm font-medium transition ${skillsMode === 'progress' ? 'bg-indigo-600 text-white' : 'text-slate-500'}`}
+                        >
+                            Progress Bars
+                        </button>
+                        <button
+                            onClick={() => handleSkillsModeChange('badges')}
+                            className={`rounded-full px-4 py-1.5 text-sm font-medium transition ${skillsMode === 'badges' ? 'bg-indigo-600 text-white' : 'text-slate-500'}`}
+                        >
+                            Badges
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     )

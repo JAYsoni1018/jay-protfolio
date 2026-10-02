@@ -71,8 +71,7 @@ const AdminEducation = () => {
                     <div key={item._id} className="flex items-center gap-3 rounded-xl border border-slate-200 p-3 dark:border-slate-800">
                         <div className="flex-1">
                             <p className="text-sm font-medium">{item.degree}</p>
-                            <p className="text-xs text-slate-400">{item.institution}</p>
-                        </div>
+                            <p className="text-xs text-slate-400">{item.institution} · Priority: {item.displayOrder}</p>                        </div>
                         <button onClick={() => openEdit(item)} className="rounded-lg p-2 hover:bg-slate-100 dark:hover:bg-slate-800"><Pencil size={16} /></button>
                         <button onClick={() => handleDelete(item._id)} className="rounded-lg p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10"><Trash2 size={16} /></button>
                     </div>
@@ -99,7 +98,13 @@ const AdminEducation = () => {
                         className="w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700" />
                     <textarea placeholder="Description" rows={3} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })}
                         className="w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700" />
-
+                    <div>
+                        <label className="text-sm font-medium">Priority (higher shows first)</label>
+                        <input type="number" placeholder="0" value={form.displayOrder}
+                            onChange={(e) => setForm({ ...form, displayOrder: Number(e.target.value) })}
+                            className="mt-1 w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700" />
+                        <p className="mt-1 text-xs text-slate-400">Higher number is displayed first.</p>
+                    </div>
                     <div>
                         <label className="text-sm font-medium">Coursework</label>
                         <div className="mt-1 flex gap-2">

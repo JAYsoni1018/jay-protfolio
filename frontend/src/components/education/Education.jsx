@@ -9,7 +9,10 @@ const Education = () => {
     const [items, setItems] = useState([])
 
     useEffect(() => {
-        educationApi.getAll().then((res) => setItems(res.data.data)).catch(() => { })
+        educationApi.getAll().then((res) => {
+            const sorted = [...res.data.data].sort((a, b) => b.displayOrder - a.displayOrder)
+            setItems(sorted)
+        }).catch(() => { })
     }, [])
 
     if (items.length === 0) return null

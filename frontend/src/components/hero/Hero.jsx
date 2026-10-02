@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
-import { GitBranch, BriefcaseBusiness, Download, ArrowRight } from 'lucide-react'
+import { GitBranch, BriefcaseBusiness, Download, ArrowRight, Mail, Phone } from 'lucide-react'
 import { heroApi } from '../../services/resources'
-
+import { FaGithub, FaLinkedin, FaLinkedinIn } from "react-icons/fa";
 const Hero = () => {
     const [hero, setHero] = useState(null)
 
@@ -21,7 +21,7 @@ const Hero = () => {
     return (
         <section
             id="home"
-            className="relative flex min-h-screen items-center overflow-hidden px-6"
+            className="relative flex min-h-screen items-center overflow-hidden px-6 pt-20"
         >
             {/* animated background blobs */}
             <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
@@ -83,15 +83,26 @@ const Hero = () => {
                         </a>
                     </div>
 
-                    <div className="mt-8 flex items-center gap-4">
+                    <div className="mt-8 flex flex-wrap items-center gap-3 sm:gap-4">
                         {hero.githubUrl && (
                             <a href={hero.githubUrl} target="_blank" rel="noopener noreferrer" className="rounded-full border border-slate-300 p-2.5 transition hover:bg-slate-100 dark:border-slate-700 dark:hover:bg-slate-800">
-                                <GitBranch size={18} />
+                                <FaGithub size="18" />
                             </a>
                         )}
                         {hero.linkedinUrl && (
                             <a href={hero.linkedinUrl} target="_blank" rel="noopener noreferrer" className="rounded-full border border-slate-300 p-2.5 transition hover:bg-slate-100 dark:border-slate-700 dark:hover:bg-slate-800">
-                                <BriefcaseBusiness size={18} />
+                                <FaLinkedinIn size="18" />
+
+                            </a>
+                        )}
+                        {hero.email && (
+                            <a href={`mailto:${hero.email}`} className="inline-flex max-w-[180px] items-center gap-2 truncate rounded-full border border-slate-300 px-3 py-2 text-xs sm:max-w-none sm:px-4 sm:py-2.5 sm:text-sm transition hover:bg-slate-100 dark:border-slate-700 dark:hover:bg-slate-800">
+                                <Mail size={16} className="shrink-0" /> <span className="truncate">{hero.email}</span>
+                            </a>
+                        )}
+                        {hero.phone && (
+                            <a href={`tel:${hero.phone}`} className="inline-flex items-center gap-2 rounded-full border border-slate-300 px-4 py-2.5 text-sm transition hover:bg-slate-100 dark:border-slate-700 dark:hover:bg-slate-800">
+                                <Phone size={16} /> {hero.phone}
                             </a>
                         )}
                     </div>

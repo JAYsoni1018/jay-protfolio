@@ -119,8 +119,12 @@ const AdminSkills = () => {
                         <label className="text-sm font-medium">Category</label>
                         <select required value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })}
                             className="mt-1 w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700">
-                            <option value="">Select category</option>
-                            {categories.map((c) => <option key={c._id} value={c._id}>{c.name}</option>)}
+                            <option value="" className="bg-white text-slate-900 dark:bg-slate-900 dark:text-white">Select category</option>
+                            {categories.map((c) => (
+                                <option key={c._id} value={c._id} className="bg-white text-slate-900 dark:bg-slate-900 dark:text-white">
+                                    {c.name}
+                                </option>
+                            ))}
                         </select>
                     </div>
                     <div>

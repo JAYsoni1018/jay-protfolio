@@ -68,8 +68,7 @@ const AdminExperience = () => {
                     <div key={item._id} className="flex items-center gap-3 rounded-xl border border-slate-200 p-3 dark:border-slate-800">
                         <div className="flex-1">
                             <p className="text-sm font-medium">{item.jobTitle}</p>
-                            <p className="text-xs text-slate-400">{item.company}</p>
-                        </div>
+                            <p className="text-xs text-slate-400">{item.company} · Priority: {item.displayOrder}</p>                        </div>
                         <button onClick={() => openEdit(item)} className="rounded-lg p-2 hover:bg-slate-100 dark:hover:bg-slate-800"><Pencil size={16} /></button>
                         <button onClick={() => handleDelete(item._id)} className="rounded-lg p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10"><Trash2 size={16} /></button>
                     </div>
@@ -84,8 +83,10 @@ const AdminExperience = () => {
                         className="w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700" />
                     <select value={form.employmentType} onChange={(e) => setForm({ ...form, employmentType: e.target.value })}
                         className="w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700">
-                        {['Full-time', 'Part-time', 'Internship', 'Contract', 'Freelance'].map((t) => <option key={t}>{t}</option>)}
+                        {['Full-time', 'Part-time', 'Internship', 'Contract', 'Freelance'].map((t) => <option key={t} className="bg-white text-slate-900 dark:bg-slate-900 dark:text-white">{t}</option>)}
                     </select>
+
+
                     <input placeholder="Location" value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })}
                         className="w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700" />
                     <div className="grid grid-cols-2 gap-3">
@@ -115,6 +116,13 @@ const AdminExperience = () => {
                                     className="cursor-pointer rounded-full bg-slate-100 px-2.5 py-0.5 text-xs dark:bg-slate-800">{t} ×</span>
                             ))}
                         </div>
+                    </div>
+                    <div>
+                        <label className="text-sm font-medium">Priority (higher shows first)</label>
+                        <input type="number" placeholder="0" value={form.displayOrder}
+                            onChange={(e) => setForm({ ...form, displayOrder: Number(e.target.value) })}
+                            className="mt-1 w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700" />
+                        <p className="mt-1 text-xs text-slate-400">Higher number is displayed first.</p>
                     </div>
 
                     <button type="submit" className="w-full rounded-xl bg-indigo-600 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700">

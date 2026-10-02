@@ -31,24 +31,25 @@ const SortableImage = ({ image, onDelete, onSetPrimary }) => {
     )
 }
 
-const ImageUploader = ({ images, onChange, folder = 'projects' }) => {
+const ImageUploader = ({ images, onChange, folder = 'projects', multiple = true, uploadFn = uploadApi.image, accept = 'image/*' }) => {
     const [uploading, setUploading] = useState(false)
 
     const handleFiles = useCallback(async (files) => {
         setUploading(true)
         try {
+            const filesToUpload = multiple ? Array.from(files) : [files[0]] // only take first file in single mode
             const uploads = await Promise.all(
-                Array.from(files).map((file) => uploadApi.image(file, folder))
+                filesToUpload.map((file) => uploadFn(file, folder))
             )
             const newImages = uploads.map((res, i) => ({
                 url: res.data.data.url,
                 publicId: res.data.data.publicId,
                 width: res.data.data.width,
                 height: res.data.data.height,
-                isPrimary: images.length === 0 && i === 0,
-                order: images.length + i,
+                isPrimary: true,
+                order: 0,
             }))
-            onChange([...images, ...newImages])
+            onChange(multiple ? [...images, ...newImages] : newImages) // single mode replaces, not appends
             toast.success(`${newImages.length} image(s) uploaded`)
         } catch (err) {
             toast.error('Upload failed')
@@ -86,8 +87,8 @@ const ImageUploader = ({ images, onChange, folder = 'projects' }) => {
                 {uploading ? 'Uploading...' : 'Drag & drop images or click to browse'}
                 <input
                     type="file"
-                    multiple
-                    accept="image/*"
+                    multiple={multiple}
+                    accept={accept}
                     className="hidden"
                     onChange={(e) => e.target.files.length && handleFiles(e.target.files)}
                 />

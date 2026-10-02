@@ -74,7 +74,6 @@ function App() {
                 </ProtectedRoute>
               }
             >
-              <Route path="dashboard" element={<AdminDashboard />} />
               {/* more admin child routes added in the admin dashboard step */}
             </Route>
           </Routes>

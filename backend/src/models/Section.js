@@ -1,4 +1,4 @@
-import mongoose from 'mongoose'
+import mongoose from "mongoose";
 
 const sectionSchema = new mongoose.Schema(
   {
@@ -6,8 +6,13 @@ const sectionSchema = new mongoose.Schema(
     title: { type: String, required: true },
     enabled: { type: Boolean, default: true },
     displayOrder: { type: Number, default: 0 },
+    skillsDisplayMode: {
+      type: String,
+      enum: ["progress", "badges"],
+      default: "progress",
+    },
   },
-  { timestamps: true }
-)
+  { timestamps: true },
+);
 
-export default mongoose.model('Section', sectionSchema)
+export default mongoose.model("Section", sectionSchema);
