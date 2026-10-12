@@ -65,11 +65,20 @@ export const uploadApi = {
       headers: { "Content-Type": "multipart/form-data" },
     });
   },
+  deleteResume: (publicId) =>
+    api.delete(`/upload/resume/${encodeURIComponent(publicId)}`),
   deleteImage: (publicId) =>
     api.delete(`/upload/image/${encodeURIComponent(publicId)}`),
-  certificate: (file) => {
+  // certificate: (file) => {
+  //   const formData = new FormData();
+  //   formData.append("certificate", file);
+  //   return api.post("/upload/certificate?folder=certificates", formData, {
+  //     headers: { "Content-Type": "multipart/form-data" },
+  //   });
+  // },
+  document: (file) => {
     const formData = new FormData();
-    formData.append("certificate", file);
+    formData.append("certificate", file); // field name stays, backend expects this key
     return api.post("/upload/certificate?folder=certificates", formData, {
       headers: { "Content-Type": "multipart/form-data" },
     });

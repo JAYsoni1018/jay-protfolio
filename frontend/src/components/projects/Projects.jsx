@@ -14,7 +14,7 @@ const Projects = () => {
     useEffect(() => {
         projectsApi
             .getAll({ limit: 100 })
-            .then((res) => setProjects(res.data.data))
+            .then((res) => setProjects(res.data.data.filter((project) => project.isActive !== false)))
             .finally(() => setLoading(false))
     }, [])
 

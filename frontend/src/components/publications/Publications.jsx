@@ -1,15 +1,19 @@
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
-import { FileText, ExternalLink } from 'lucide-react'
+import { FileText, ExternalLink, Download } from 'lucide-react'
 import ScrollReveal from '../common/ScrollReveal'
 import { publicationsApi } from '../../services/resources'
 import { formatDate } from '../../utils/formatDate'
+import { downloadFile, slugifyFilename } from '../../utils/downloadFile'
 
 const Publications = () => {
     const [items, setItems] = useState([])
 
     useEffect(() => {
-        publicationsApi.getAll({ limit: 100 }).then((res) => setItems(res.data.data)).catch(() => { })
+        publicationsApi.getAll({ limit: 100 }).then((res) => {
+            const sorted = res.data.data.filter((item) => item.isActive !== false).sort((a, b) => b.displayOrder - a.displayOrder)
+            setItems(sorted)
+        }).catch(() => { })
     }, [])
 
     if (items.length === 0) return null
@@ -66,18 +70,21 @@ const Publications = () => {
 
                                 <div className="mt-3 flex gap-4">
                                     {pub.paperUrl && (
-                                        <a href={pub.paperUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-sm font-medium text-indigo-500 hover:underline">
+                                        <a href={pub.paperUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-sm font-medium text-indigo-500 cursor-pointer">
                                             View Paper <ExternalLink size={13} />
                                         </a>
                                     )}
                                     {pub.pdfUrl && (
-                                        <a href={pub.pdfUrl} target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-indigo-500 hover:underline">
-                                            PDF
-                                        </a>
+                                        <button
+                                            onClick={() => downloadFile(pub.pdfUrl, `jay-publication-${slugifyFilename(pub.title)}.pdf`)}
+                                            className="inline-flex items-center gap-1 text-sm font-medium text-indigo-500 cursor-pointer"
+                                        >
+                                            Download <Download size={13} />
+                                        </button>
                                     )}
                                     {pub.doiUrl && (
-                                        <a href={pub.doiUrl} target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-indigo-500 hover:underline">
-                                            DOI
+                                        <a href={pub.doiUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-sm font-medium text-indigo-500 cursor-pointer">
+                                            DOI <ExternalLink size={13} />
                                         </a>
                                     )}
                                 </div>
@@ -86,7 +93,7 @@ const Publications = () => {
                     </ScrollReveal>
                 ))}
             </div>
-        </section>
+        </section >
     )
 }
 

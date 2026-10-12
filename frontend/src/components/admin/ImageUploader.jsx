@@ -1,26 +1,32 @@
 import { useState, useCallback } from 'react'
-import { DndContext, closestCenter } from '@dnd-kit/core'
+import { DndContext, closestCenter, MouseSensor, TouchSensor, useSensor, useSensors } from '@dnd-kit/core'
 import { SortableContext, useSortable, arrayMove, rectSortingStrategy } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { Upload, X, Star, GripVertical, Loader2 } from 'lucide-react'
+import { Upload, X, Star, GripVertical, Loader2, FileText } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { uploadApi } from '../../services/resources'
 
 const SortableImage = ({ image, onDelete, onSetPrimary }) => {
     const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: image.publicId })
     const style = { transform: CSS.Transform.toString(transform), transition }
+    const isPdf = image.isPdf || image.url?.toLowerCase().endsWith('.pdf')
 
     return (
-        <div ref={setNodeRef} style={style} className="group relative overflow-hidden rounded-xl border border-slate-200 dark:border-slate-700">
+        <div ref={setNodeRef} style={style} className="group relative overflow-hidden rounded-xl border border-slate-200 dark:border-slate-700">            {isPdf ? (
+            <div className="flex h-28 w-full items-center justify-center bg-slate-100 text-slate-400 dark:bg-slate-800">
+                <FileText size={32} />
+            </div>
+        ) : (
             <img src={image.url} alt="" className="h-28 w-full object-cover" />
-            <div className="absolute inset-0 flex items-center justify-center gap-2 bg-black/50 opacity-0 transition-opacity group-hover:opacity-100">
-                <button type="button" {...attributes} {...listeners} className="rounded-full bg-white p-1.5 text-slate-900">
+        )}
+            <div className="absolute inset-0 flex items-center justify-center gap-2 bg-black/50 opacity-100 transition-opacity sm:opacity-0 sm:group-hover:opacity-100">
+                <button type="button" {...attributes} {...listeners} aria-label="Reorder file" title="Reorder file" className="touch-none rounded-full bg-white p-2 text-slate-900">
                     <GripVertical size={14} />
                 </button>
-                <button type="button" onClick={() => onSetPrimary(image.publicId)} className={`rounded-full p-1.5 ${image.isPrimary ? 'bg-amber-400' : 'bg-white text-slate-900'}`}>
+                <button type="button" onPointerDown={(event) => event.stopPropagation()} onClick={() => onSetPrimary(image.publicId)} aria-label="Set as primary" title="Set as primary" className={`rounded-full p-2 ${image.isPrimary ? 'bg-amber-400' : 'bg-white text-slate-900'}`}>
                     <Star size={14} fill={image.isPrimary ? 'white' : 'none'} />
                 </button>
-                <button type="button" onClick={() => onDelete(image.publicId)} className="rounded-full bg-white p-1.5 text-red-500">
+                <button type="button" onPointerDown={(event) => event.stopPropagation()} onClick={() => onDelete(image.publicId)} aria-label="Remove file" title="Remove file" className="rounded-full bg-white p-2 text-red-500">
                     <X size={14} />
                 </button>
             </div>
@@ -33,6 +39,10 @@ const SortableImage = ({ image, onDelete, onSetPrimary }) => {
 
 const ImageUploader = ({ images, onChange, folder = 'projects', multiple = true, uploadFn = uploadApi.image, accept = 'image/*' }) => {
     const [uploading, setUploading] = useState(false)
+    const sensors = useSensors(
+        useSensor(MouseSensor, { activationConstraint: { distance: 6 } }),
+        useSensor(TouchSensor, { activationConstraint: { delay: 250, tolerance: 5 } }),
+    )
 
     const handleFiles = useCallback(async (files) => {
         setUploading(true)
@@ -46,12 +56,13 @@ const ImageUploader = ({ images, onChange, folder = 'projects', multiple = true,
                 publicId: res.data.data.publicId,
                 width: res.data.data.width,
                 height: res.data.data.height,
-                isPrimary: true,
-                order: 0,
+                isPdf: res.data.data.isPdf || false,
+                isPrimary: images.length === 0 && i === 0,
+                order: images.length + i,
             }))
             onChange(multiple ? [...images, ...newImages] : newImages) // single mode replaces, not appends
-            toast.success(`${newImages.length} image(s) uploaded`)
-        } catch (err) {
+            toast.success(`${newImages.length} file(s) uploaded`)
+        } catch {
             toast.error('Upload failed')
         } finally {
             setUploading(false)
@@ -95,7 +106,7 @@ const ImageUploader = ({ images, onChange, folder = 'projects', multiple = true,
             </label>
 
             {images.length > 0 && (
-                <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+                <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
                     <SortableContext items={images.map((i) => i.publicId)} strategy={rectSortingStrategy}>
                         <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
                             {images.map((img) => (

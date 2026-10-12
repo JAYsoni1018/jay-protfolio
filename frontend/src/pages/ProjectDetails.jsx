@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { GitBranch, ExternalLink, ArrowLeft } from 'lucide-react'
+import { ExternalLink, ArrowLeft, Play } from 'lucide-react'
 import Navbar from '../components/navbar/Navbar'
 import ProjectGallery from '../components/projects/ProjectGallery'
 import RichTextRenderer from '../components/common/RichTextRenderer'
@@ -22,7 +22,7 @@ const ProjectDetails = () => {
         projectsApi
             .getAll({ limit: 200 }) // simplest: filter client-side by slug
             .then((res) => {
-                const found = res.data.data.find((p) => p.slug === slug)
+                const found = res.data.data.find((p) => p.slug === slug && p.isActive !== false)
                 if (found) setProject(found)
                 else setNotFound(true)
             })
@@ -89,6 +89,11 @@ const ProjectDetails = () => {
                         {project.liveDemoUrl && (
                             <a href={project.liveDemoUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-full bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-700">
                                 <ExternalLink size={16} /> Live Demo
+                            </a>
+                        )}
+                        {project.videoDemoUrl && (
+                            <a href={project.videoDemoUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-full border border-slate-300 px-5 py-2.5 text-sm font-semibold transition hover:bg-slate-100 dark:border-slate-700 dark:hover:bg-slate-800">
+                                <Play size={16} /> Video Demo
                             </a>
                         )}
                     </div>

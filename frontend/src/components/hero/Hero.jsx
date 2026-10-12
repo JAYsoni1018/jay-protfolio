@@ -1,11 +1,19 @@
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
-import { GitBranch, BriefcaseBusiness, Download, ArrowRight, Mail, Phone } from 'lucide-react'
+import { Download, ArrowRight, Mail, Phone } from 'lucide-react'
 import { heroApi } from '../../services/resources'
-import { FaGithub, FaLinkedin, FaLinkedinIn } from "react-icons/fa";
+import { FaGithub, FaLinkedinIn } from "react-icons/fa";
+import { downloadFile, slugifyFilename } from '../../utils/downloadFile'
+import { socialLinksApi } from '../../services/resources'
 const Hero = () => {
     const [hero, setHero] = useState(null)
+    const [socials, setSocials] = useState([])
 
+    useEffect(() => {
+        socialLinksApi.getAll().then((res) => setSocials(res.data.data.filter((s) => s.isActive))).catch(() => { })
+    }, [])
+
+    const findSocial = (platform) => socials.find((s) => s.platform === platform)?.url
     useEffect(() => {
         heroApi.get().then((res) => setHero(res.data.data)).catch(() => { })
     }, [])
@@ -17,7 +25,14 @@ const Hero = () => {
             </section>
         )
     }
-
+    const github = findSocial('GitHub')
+    const linkedin = findSocial('LinkedIn')
+    const email = findSocial('Email')
+    const phone = findSocial('Phone')
+    const emailAddress = email?.replace(/^mailto:/i, '')
+    const phoneNumber = phone?.replace(/^tel:/i, '')
+    const emailHref = email?.startsWith('mailto:') ? email : `mailto:${email}`
+    const phoneHref = phone?.startsWith('tel:') ? phone : `tel:${phone}`
     return (
         <section
             id="home"
@@ -64,14 +79,12 @@ const Hero = () => {
                         </a>
 
                         {hero.resumeUrl && (
-                            <a
-                                href={hero.resumeUrl}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="inline-flex items-center gap-2 rounded-full border border-slate-300 px-6 py-3 text-sm font-semibold transition hover:bg-slate-100 dark:border-slate-700 dark:hover:bg-slate-800"
+                            <button
+                                onClick={() => downloadFile(hero.resumeUrl, `jay-${slugifyFilename(hero.name || 'resume')}-resume.pdf`)}
+                                className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-slate-300 px-6 py-3 text-sm font-semibold transition hover:bg-slate-100 dark:border-slate-700 dark:hover:bg-slate-800"
                             >
                                 <Download size={16} /> Resume
-                            </a>
+                            </button>
                         )}
 
 
@@ -84,25 +97,25 @@ const Hero = () => {
                     </div>
 
                     <div className="mt-8 flex flex-wrap items-center gap-3 sm:gap-4">
-                        {hero.githubUrl && (
-                            <a href={hero.githubUrl} target="_blank" rel="noopener noreferrer" className="rounded-full border border-slate-300 p-2.5 transition hover:bg-slate-100 dark:border-slate-700 dark:hover:bg-slate-800">
+                        {github && (
+                            <a href={github} target="_blank" rel="noopener noreferrer" className="rounded-full border border-slate-300 p-2.5 transition hover:bg-slate-100 dark:border-slate-700 dark:hover:bg-slate-800">
                                 <FaGithub size="18" />
                             </a>
                         )}
-                        {hero.linkedinUrl && (
-                            <a href={hero.linkedinUrl} target="_blank" rel="noopener noreferrer" className="rounded-full border border-slate-300 p-2.5 transition hover:bg-slate-100 dark:border-slate-700 dark:hover:bg-slate-800">
+                        {linkedin && (
+                            <a href={linkedin} target="_blank" rel="noopener noreferrer" className="rounded-full border border-slate-300 p-2.5 transition hover:bg-slate-100 dark:border-slate-700 dark:hover:bg-slate-800">
                                 <FaLinkedinIn size="18" />
 
                             </a>
                         )}
-                        {hero.email && (
-                            <a href={`mailto:${hero.email}`} className="inline-flex max-w-[180px] items-center gap-2 truncate rounded-full border border-slate-300 px-3 py-2 text-xs sm:max-w-none sm:px-4 sm:py-2.5 sm:text-sm transition hover:bg-slate-100 dark:border-slate-700 dark:hover:bg-slate-800">
-                                <Mail size={16} className="shrink-0" /> <span className="truncate">{hero.email}</span>
+                        {email && (
+                            <a href={emailHref} className="inline-flex max-w-45 items-center gap-2 truncate rounded-full border border-slate-300 px-3 py-2 text-xs sm:max-w-none sm:px-4 sm:py-2.5 sm:text-sm transition hover:bg-slate-100 dark:border-slate-700 dark:hover:bg-slate-800">
+                                <Mail size={16} className="shrink-0" /> <span className="truncate">{emailAddress}</span>
                             </a>
                         )}
-                        {hero.phone && (
-                            <a href={`tel:${hero.phone}`} className="inline-flex items-center gap-2 rounded-full border border-slate-300 px-4 py-2.5 text-sm transition hover:bg-slate-100 dark:border-slate-700 dark:hover:bg-slate-800">
-                                <Phone size={16} /> {hero.phone}
+                        {phone && (
+                            <a href={phoneHref} className="inline-flex items-center gap-2 rounded-full border border-slate-300 px-4 py-2.5 text-sm transition hover:bg-slate-100 dark:border-slate-700 dark:hover:bg-slate-800">
+                                <Phone size={16} /> {phoneNumber}
                             </a>
                         )}
                     </div>

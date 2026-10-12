@@ -63,6 +63,16 @@ export const deleteImageHandler = async (req, res, next) => {
   }
 };
 
+export const deleteResumeHandler = async (req, res, next) => {
+  try {
+    const publicId = decodeURIComponent(req.params.publicId);
+    await deleteFromCloudinary(publicId, "raw");
+    res.json({ success: true, message: "Resume deleted" });
+  } catch (err) {
+    next(err);
+  }
+};
+
 // DELETE /api/upload/certificate/:publicId (publicId must be passed URL-encoded)
 export const deleteCertificateHandler = async (req, res, next) => {
   try {

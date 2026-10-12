@@ -3,10 +3,12 @@ import { Plus, Pencil, Trash2 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import Modal from '../../components/admin/Modal'
 import { publicationsApi } from '../../services/resources'
-
+import { uploadApi } from '../../services/resources'
+import ImageUploader from '../../components/admin/ImageUploader'
+import ConfirmDialog from '../../components/admin/ConfirmDialog'
 const emptyPublication = {
     title: '', authors: [], venue: '', venueType: 'Conference', publicationDate: '',
-    abstract: '', doiUrl: '', pdfUrl: '', paperUrl: '', tags: [], featured: false, displayOrder: 0,
+    abstract: '', doiUrl: '', pdfUrl: '', paperUrl: '', tags: [], featured: false, isActive: true, displayOrder: 0,
 }
 
 const AdminPublications = () => {
@@ -16,7 +18,7 @@ const AdminPublications = () => {
     const [form, setForm] = useState(emptyPublication)
     const [authorInput, setAuthorInput] = useState('')
     const [tagInput, setTagInput] = useState('')
-
+    const [confirmId, setConfirmId] = useState(null)
     const load = () => publicationsApi.getAll({ limit: 100 }).then((res) => setItems(res.data.data))
     useEffect(() => { load() }, [])
 
@@ -36,8 +38,10 @@ const AdminPublications = () => {
     const handleSubmit = async (e) => {
         e.preventDefault()
         try {
-            if (editing) await publicationsApi.update(editing, form)
-            else await publicationsApi.create(form)
+            const payload = { ...form }
+            delete payload._id
+            if (editing) await publicationsApi.update(editing, payload)
+            else await publicationsApi.create(payload)
             toast.success(editing ? 'Updated' : 'Added')
             setModalOpen(false)
             load()
@@ -45,10 +49,9 @@ const AdminPublications = () => {
             toast.error('Failed to save')
         }
     }
-
     const handleDelete = async (id) => {
-        if (!window.confirm('Delete this publication?')) return
         await publicationsApi.remove(id)
+        setConfirmId(null)
         toast.success('Deleted')
         load()
     }
@@ -81,26 +84,33 @@ const AdminPublications = () => {
                     <div key={item._id} className="flex items-center gap-3 rounded-xl border border-slate-200 p-3 dark:border-slate-800">
                         <div className="flex-1">
                             <p className="text-sm font-medium">{item.title}</p>
-                            <p className="text-xs text-slate-400">{item.venue} · {item.venueType}</p>
+                            <p className="text-xs text-slate-400">{item.venue} · {item.venueType} · Priority: {item.displayOrder}</p>
                         </div>
                         {item.featured && <span className="rounded-full bg-indigo-100 px-2 py-0.5 text-xs text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400">Featured</span>}
+                        <span className={`rounded-full px-2 py-0.5 text-xs ${item.isActive !== false ? 'bg-green-100 text-green-700 dark:bg-green-500/10 dark:text-green-400' : 'bg-slate-100 text-slate-500 dark:bg-slate-800'}`}>
+                            {item.isActive !== false ? 'Active' : 'Inactive'}
+                        </span>
                         <button onClick={() => openEdit(item)} className="rounded-lg p-2 hover:bg-slate-100 dark:hover:bg-slate-800"><Pencil size={16} /></button>
-                        <button onClick={() => handleDelete(item._id)} className="rounded-lg p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10"><Trash2 size={16} /></button>
+                        <button onClick={() => setConfirmId(item._id)} className="rounded-lg p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10"><Trash2 size={16} /></button>
                     </div>
                 ))}
             </div>
 
             <Modal open={modalOpen} onClose={() => setModalOpen(false)} title={editing ? 'Edit Publication' : 'Add Publication'}>
                 <form onSubmit={handleSubmit} className="space-y-4">
-                    <input required placeholder="Title" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })}
-                        className="w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700" />
 
+                    <div>
+                        <label className="text-sm font-medium">Title</label>
+                        <input required placeholder="Title" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })}
+                            className="w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700" />
+
+                    </div>
                     <div>
                         <label className="text-sm font-medium">Authors</label>
                         <div className="mt-1 flex gap-2">
                             <input value={authorInput} onChange={(e) => setAuthorInput(e.target.value)}
                                 onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addAuthor() } }}
-                                placeholder="e.g. Jay Patel"
+                                placeholder="e.g. Jay Soni"
                                 className="flex-1 rounded-lg border border-slate-300 bg-transparent px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700" />
                             <button type="button" onClick={addAuthor} className="rounded-lg bg-slate-100 px-4 text-sm dark:bg-slate-800">Add</button>
                         </div>
@@ -111,27 +121,61 @@ const AdminPublications = () => {
                             ))}
                         </div>
                     </div>
+                    <div>
+                        <label className="text-sm font-medium">Venue</label>
+                        <input required placeholder="Venue (e.g. IEEE Xplore)" value={form.venue} onChange={(e) => setForm({ ...form, venue: e.target.value })}
+                            className="w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700" />
 
-                    <input required placeholder="Venue (e.g. IEEE Xplore)" value={form.venue} onChange={(e) => setForm({ ...form, venue: e.target.value })}
-                        className="w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700" />
+                    </div>
+                    <div>
+                        <label className="text-sm font-medium">Venue Type</label>
+                        <select value={form.venueType} onChange={(e) => setForm({ ...form, venueType: e.target.value })}
+                            className="w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700">
+                            {['Journal', 'Conference', 'Workshop', 'Preprint', 'Other'].map((t) => <option key={t} className="bg-white text-slate-900 dark:bg-slate-900 dark:text-white">{t}</option>)}
+                        </select>
+                    </div>
 
-                    <select value={form.venueType} onChange={(e) => setForm({ ...form, venueType: e.target.value })}
-                        className="w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700">
-                        {['Journal', 'Conference', 'Workshop', 'Preprint', 'Other'].map((t) => <option key={t}>{t}</option>)}
-                    </select>
+                    <div>
+                        <label className="text-sm font-medium">Publication Date</label>
+                        <input required type="date" value={form.publicationDate} onChange={(e) => setForm({ ...form, publicationDate: e.target.value })}
+                            className="w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700   hover:bg-slate-100 dark:hover:bg-slate-800" />
+                    </div>
+                    <div>
+                        <label className="text-sm font-medium">Priority (higher shows first)</label>
+                        <input type="number" placeholder="0" value={form.displayOrder}
+                            onChange={(e) => setForm({ ...form, displayOrder: Number(e.target.value) })}
+                            className="w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700" />
+                    </div>
 
-                    <input type="date" value={form.publicationDate} onChange={(e) => setForm({ ...form, publicationDate: e.target.value })}
-                        className="w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700" />
+                    <div>
+                        <label className="text-sm font-medium">Abstract</label>
+                        <textarea required placeholder="Abstract" rows={3} value={form.abstract} onChange={(e) => setForm({ ...form, abstract: e.target.value })}
+                            className="w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700" />
 
-                    <textarea placeholder="Abstract" rows={3} value={form.abstract} onChange={(e) => setForm({ ...form, abstract: e.target.value })}
-                        className="w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700" />
-
-                    <input placeholder="Paper URL (IEEE/arXiv link)" value={form.paperUrl} onChange={(e) => setForm({ ...form, paperUrl: e.target.value })}
-                        className="w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700" />
-                    <input placeholder="PDF URL" value={form.pdfUrl} onChange={(e) => setForm({ ...form, pdfUrl: e.target.value })}
-                        className="w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700" />
-                    <input placeholder="DOI URL" value={form.doiUrl} onChange={(e) => setForm({ ...form, doiUrl: e.target.value })}
-                        className="w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700" />
+                    </div>
+                    <div>
+                        <label className="text-sm font-medium">Paper URL</label>
+                        <input required placeholder="IEEE/arXiv link" value={form.paperUrl} onChange={(e) => setForm({ ...form, paperUrl: e.target.value })}
+                            className="mt-1 w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700" />
+                    </div>
+                    <div>
+                        <label className="text-sm font-medium">PDF Paper</label>
+                        <div className="mt-1">
+                            <ImageUploader
+                                images={form.pdfUrl ? [{ url: form.pdfUrl, publicId: form.pdfPublicId, isPrimary: true, isPdf: true }] : []}
+                                onChange={(images) => setForm({ ...form, pdfUrl: images[0]?.url || '', pdfPublicId: images[0]?.publicId || '' })}
+                                folder="publications"
+                                multiple={false}
+                                uploadFn={uploadApi.document}
+                                accept="application/pdf"
+                            />
+                        </div>
+                    </div>
+                    <div>
+                        <label className="text-sm font-medium">DOI URL</label>
+                        <input placeholder="https://doi.org/..." value={form.doiUrl} onChange={(e) => setForm({ ...form, doiUrl: e.target.value })}
+                            className="mt-1 w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700" />
+                    </div>
 
                     <div>
                         <label className="text-sm font-medium">Tags</label>
@@ -155,11 +199,22 @@ const AdminPublications = () => {
                         <label htmlFor="pub-featured" className="text-sm font-medium">Featured</label>
                     </div>
 
+                    <div className="flex items-center gap-2">
+                        <input type="checkbox" id="publication-active" checked={form.isActive !== false} onChange={(e) => setForm({ ...form, isActive: e.target.checked })} className="h-4 w-4" />
+                        <label htmlFor="publication-active" className="text-sm font-medium">Active</label>
+                    </div>
+
                     <button type="submit" className="w-full rounded-xl bg-indigo-600 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700">
-                        Save
+                        {editing ? 'Update' : 'Save'}
                     </button>
                 </form>
             </Modal>
+            <ConfirmDialog
+                open={!!confirmId}
+                onClose={() => setConfirmId(null)}
+                onConfirm={() => handleDelete(confirmId)}
+                message="This publication will be permanently deleted."
+            />
         </div>
     )
 }

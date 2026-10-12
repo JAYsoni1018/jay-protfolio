@@ -10,7 +10,7 @@ const Experience = () => {
 
     useEffect(() => {
         experienceApi.getAll().then((res) => {
-            const sorted = [...res.data.data].sort((a, b) => b.displayOrder - a.displayOrder)
+            const sorted = res.data.data.filter((item) => item.isActive !== false).sort((a, b) => b.displayOrder - a.displayOrder)
             setItems(sorted)
         }).catch(() => { })
     }, [])
@@ -34,7 +34,7 @@ const Experience = () => {
                                 whileInView={{ scale: 1 }}
                                 viewport={{ once: true }}
                                 transition={{ duration: 0.4, delay: i * 0.1 }}
-                                className="absolute -left-[41px] flex h-8 w-8 items-center justify-center rounded-full bg-purple-500 text-white"
+                                className="absolute -left-10.25 flex h-8 w-8 items-center justify-center rounded-full bg-purple-500 text-white"
                             >
                                 <Briefcase size={16} />
                             </motion.span>

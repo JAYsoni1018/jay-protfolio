@@ -3,6 +3,7 @@ import { Plus, Pencil, Trash2 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import Modal from '../../components/admin/Modal'
 import { skillsApi, skillCategoriesApi } from '../../services/resources'
+import ConfirmDialog from '../../components/admin/ConfirmDialog'
 
 const emptySkill = { name: '', category: '', proficiency: 80, featured: false, displayOrder: 0 }
 
@@ -13,7 +14,7 @@ const AdminSkills = () => {
     const [editing, setEditing] = useState(null)
     const [form, setForm] = useState(emptySkill)
     const [newCategory, setNewCategory] = useState('')
-
+    const [deleteTarget, setDeleteTarget] = useState(null)
     const load = () => {
         skillCategoriesApi.getAll().then((res) => setCategories(res.data.data))
         skillsApi.getAll({ limit: 200 }).then((res) => setSkills(res.data.data))
@@ -42,10 +43,14 @@ const AdminSkills = () => {
     }
 
     const handleDelete = async (id) => {
-        if (!window.confirm('Delete this skill?')) return
-        await skillsApi.remove(id)
-        toast.success('Skill deleted')
-        load()
+        try {
+            await skillsApi.remove(id)
+            setDeleteTarget(null)
+            setSkills((current) => current.filter((skill) => skill._id !== id))
+            toast.success('Skill deleted')
+        } catch {
+            toast.error('Failed to delete skill')
+        }
     }
 
     const addCategory = async () => {
@@ -56,10 +61,19 @@ const AdminSkills = () => {
     }
 
     const deleteCategory = async (id) => {
-        if (!window.confirm('Delete this category? Skills inside it will remain but lose their category.')) return
         await skillCategoriesApi.remove(id)
+        setDeleteTarget(null)
+        toast.success('Category deleted')
         load()
     }
+
+    const confirmDelete = async () => {
+        if (!deleteTarget) return
+        if (deleteTarget.type === 'category') await deleteCategory(deleteTarget.id)
+        else await handleDelete(deleteTarget.id)
+    }
+
+
 
     return (
         <div>
@@ -86,7 +100,7 @@ const AdminSkills = () => {
                     {categories.map((cat) => (
                         <span key={cat._id} className="flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1 text-xs font-medium dark:bg-slate-800">
                             {cat.name}
-                            <button onClick={() => deleteCategory(cat._id)} className="text-red-400">×</button>
+                            <button onClick={() => setDeleteTarget({ type: 'category', id: cat._id })} className="text-red-400">×</button>
                         </span>
                     ))}
                 </div>
@@ -103,7 +117,7 @@ const AdminSkills = () => {
                             </p>
                         </div>
                         <button onClick={() => openEdit(skill)} className="rounded-lg p-2 hover:bg-slate-100 dark:hover:bg-slate-800"><Pencil size={16} /></button>
-                        <button onClick={() => handleDelete(skill._id)} className="rounded-lg p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10"><Trash2 size={16} /></button>
+                        <button onClick={() => setDeleteTarget({ type: 'skill', id: skill._id })} className="rounded-lg p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10"><Trash2 size={16} /></button>
                     </div>
                 ))}
             </div>
@@ -142,6 +156,13 @@ const AdminSkills = () => {
                     </button>
                 </form>
             </Modal>
+
+            <ConfirmDialog
+                open={!!deleteTarget}
+                onClose={() => setDeleteTarget(null)}
+                onConfirm={confirmDelete}
+                message={`This ${deleteTarget?.type || 'item'} will be permanently deleted.`}
+            />
         </div>
     )
 }

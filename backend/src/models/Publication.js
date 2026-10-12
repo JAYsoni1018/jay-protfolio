@@ -1,29 +1,31 @@
-import mongoose from 'mongoose'
+import mongoose from "mongoose";
 
 const publicationSchema = new mongoose.Schema(
   {
     title: { type: String, required: true },
-    authors: [{ type: String, required: true }], // e.g. ["Jay Patel", "Co-author Name"]
+    authors: [{ type: String, required: true }], // e.g. ["Jay Soni", "Co-author Name"]
     venue: { type: String, required: true }, // journal/conference name, e.g. "IEEE Xplore"
     venueType: {
       type: String,
-      enum: ['Journal', 'Conference', 'Workshop', 'Preprint', 'Other'],
-      default: 'Conference',
+      enum: ["Journal", "Conference", "Workshop", "Preprint", "Other"],
+      default: "Conference",
     },
     publicationDate: Date,
     abstract: String,
     doiUrl: String,
     pdfUrl: String,
     paperUrl: String, // external link (IEEE Xplore, arXiv, etc.)
+    pdfPublicId: String,
     thumbnail: {
       url: String,
       publicId: String,
     },
     tags: [String], // e.g. ["NLP", "RAG", "Machine Learning"]
     featured: { type: Boolean, default: false },
+    isActive: { type: Boolean, default: true },
     displayOrder: { type: Number, default: 0 },
   },
-  { timestamps: true }
-)
+  { timestamps: true },
+);
 
-export default mongoose.model('Publication', publicationSchema)
+export default mongoose.model("Publication", publicationSchema);

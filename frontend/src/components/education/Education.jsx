@@ -10,7 +10,7 @@ const Education = () => {
 
     useEffect(() => {
         educationApi.getAll().then((res) => {
-            const sorted = [...res.data.data].sort((a, b) => b.displayOrder - a.displayOrder)
+            const sorted = res.data.data.filter((item) => item.isActive !== false).sort((a, b) => b.displayOrder - a.displayOrder)
             setItems(sorted)
         }).catch(() => { })
     }, [])

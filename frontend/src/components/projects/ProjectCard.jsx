@@ -1,12 +1,16 @@
 import { motion } from 'framer-motion'
-import { GitBranch, ExternalLink, ArrowUpRight } from 'lucide-react'
+import { GitBranch, ExternalLink, ArrowUpRight, Play } from 'lucide-react'
 import { FaGithub } from 'react-icons/fa'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 
 
 const ProjectCard = ({ project }) => {
     const thumbnail = project.thumbnail?.url || project.images?.[0]?.url
+    const navigate = useNavigate()
 
+    const handleCardClick = () => {
+        navigate(`/projects/${project.slug}`)
+    }
     return (
         <motion.div
             layout
@@ -15,7 +19,8 @@ const ProjectCard = ({ project }) => {
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.4 }}
             whileHover={{ y: -6 }}
-            className="group overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-shadow hover:shadow-xl dark:border-slate-800 dark:bg-slate-900"
+            onClick={handleCardClick}
+            className="group cursor-pointer overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-shadow hover:shadow-xl dark:border-slate-800 dark:bg-slate-900"
         >
             <div className="relative h-52 overflow-hidden">
                 {thumbnail ? (
@@ -57,6 +62,17 @@ const ProjectCard = ({ project }) => {
                             className="rounded-full bg-white p-2.5 text-slate-900 transition hover:scale-110"
                         >
                             <ExternalLink size={18} />
+                        </a>
+                    )}
+                    {project.videoDemoUrl && (
+                        <a
+                            href={project.videoDemoUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={(e) => e.stopPropagation()}
+                            className="rounded-full bg-white p-2.5 text-slate-900 transition hover:scale-110"
+                        >
+                            <Play size={18} />
                         </a>
                     )}
                 </div>

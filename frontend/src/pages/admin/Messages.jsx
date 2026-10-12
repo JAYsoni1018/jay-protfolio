@@ -1,17 +1,24 @@
 import { useEffect, useState } from 'react'
-import { Mail, MailOpen, Trash2, Search } from 'lucide-react'
+import { Mail, MailOpen, Trash2, Search, X } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { contactApi } from '../../services/resources'
 import { formatDate } from '../../utils/formatDate'
+import ConfirmDialog from '../../components/admin/ConfirmDialog'
 
 const AdminMessages = () => {
     const [messages, setMessages] = useState([])
     const [search, setSearch] = useState('')
     const [selected, setSelected] = useState(null)
-
-    const load = () => contactApi.getAll({ limit: 100 }).then((res) => setMessages(res.data.data))
-    useEffect(() => { load() }, [])
-
+    const [page, setPage] = useState(1)
+    const [totalPages, setTotalPages] = useState(1)
+    const [confirmId, setConfirmId] = useState(null)
+    const load = () => {
+        contactApi.getAll({ limit: 10, page, search }).then((res) => {
+            setMessages(res.data.data)
+            setTotalPages(res.data.pagination?.pages || 1)
+        })
+    }
+    useEffect(() => { load() }, [page, search])
     const openMessage = async (msg) => {
         setSelected(msg)
         if (!msg.isRead) {
@@ -23,6 +30,7 @@ const AdminMessages = () => {
     const handleDelete = async (id) => {
         if (!window.confirm('Delete this message?')) return
         await contactApi.remove(id)
+        setConfirmId(null)
         toast.success('Deleted')
         if (selected?._id === id) setSelected(null)
         load()
@@ -38,7 +46,7 @@ const AdminMessages = () => {
 
             <div className="relative mt-4 max-w-sm">
                 <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search messages..."
+                <input value={search} onChange={(e) => { setSearch(e.target.value); setPage(1) }} placeholder="Search messages..."
                     className="w-full rounded-xl border border-slate-300 bg-transparent py-2.5 pl-9 pr-4 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700" />
             </div>
 
@@ -67,22 +75,48 @@ const AdminMessages = () => {
                             <div className="flex items-start justify-between">
                                 <div>
                                     <h2 className="font-semibold">{selected.subject}</h2>
+
                                     <p className="mt-1 text-sm text-slate-500">
                                         {selected.name} · {selected.email}
                                     </p>
                                     <p className="text-xs text-slate-400">{formatDate(selected.createdAt, { year: 'numeric', month: 'short', day: 'numeric' })}</p>
                                 </div>
-                                <button onClick={() => handleDelete(selected._id)} className="rounded-lg p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10">
-                                    <Trash2 size={16} />
-                                </button>
+                                <div className="flex items-center gap-1">
+                                    <button onClick={() => setConfirmId(selected._id)} className="rounded-lg p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10">
+                                        <Trash2 size={16} />
+                                    </button>
+                                    <button onClick={() => setSelected(null)} className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800">
+                                        <X size={16} />
+                                    </button>
+                                </div>
                             </div>
                             <p className="mt-4 whitespace-pre-wrap text-sm text-slate-600 dark:text-slate-300">{selected.message}</p>
                         </div>
                     ) : (
                         <div className="flex h-40 items-center justify-center text-sm text-slate-400">Select a message to view</div>
                     )}
+
+                    {totalPages > 1 && (
+                        <div className="flex items-center justify-between pt-2">
+                            <button disabled={page === 1} onClick={() => setPage((p) => p - 1)}
+                                className="rounded-lg px-3 py-1.5 text-sm font-medium disabled:opacity-40 hover:bg-slate-100 dark:hover:bg-slate-800">
+                                Prev
+                            </button>
+                            <span className="text-xs text-slate-400">Page {page} of {totalPages}</span>
+                            <button disabled={page === totalPages} onClick={() => setPage((p) => p + 1)}
+                                className="rounded-lg px-3 py-1.5 text-sm font-medium disabled:opacity-40 hover:bg-slate-100 dark:hover:bg-slate-800">
+                                Next
+                            </button>
+                        </div>
+                    )}
                 </div>
             </div>
+            <ConfirmDialog
+                open={!!confirmId}
+                onClose={() => setConfirmId(null)}
+                onConfirm={() => handleDelete(confirmId)}
+                message="This message will be permanently deleted."
+            />
         </div>
     )
 }

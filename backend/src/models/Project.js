@@ -1,4 +1,4 @@
-import mongoose from 'mongoose'
+import mongoose from "mongoose";
 
 const imageSchema = new mongoose.Schema(
   {
@@ -10,8 +10,8 @@ const imageSchema = new mongoose.Schema(
     isPrimary: { type: Boolean, default: false },
     order: { type: Number, default: 0 },
   },
-  { _id: false }
-)
+  { _id: false },
+);
 
 const projectSchema = new mongoose.Schema(
   {
@@ -25,14 +25,16 @@ const projectSchema = new mongoose.Schema(
     category: { type: String, required: true, index: true },
     githubUrl: String,
     liveDemoUrl: String,
+    videoDemoUrl: String,
     startDate: Date,
     endDate: Date,
     featured: { type: Boolean, default: false },
+    isActive: { type: Boolean, default: true },
     displayOrder: { type: Number, default: 0 },
   },
-  { timestamps: true }
-)
+  { timestamps: true },
+);
 
-projectSchema.index({ category: 1, displayOrder: 1 })
+projectSchema.index({ category: 1, displayOrder: 1 });
 
-export default mongoose.model('Project', projectSchema)
+export default mongoose.model("Project", projectSchema);

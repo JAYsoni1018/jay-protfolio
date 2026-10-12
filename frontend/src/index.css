@@ -26,3 +26,16 @@ body {
     scroll-behavior: auto !important;
   }
 }
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.5);
+}
+
+label:has(+ :is(input, textarea, select):required, + div > :is(input, textarea, select):required)::after {
+  content: ' *';
+  color: #ef4444;
+}
+
+.dark input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+}

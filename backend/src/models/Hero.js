@@ -12,6 +12,8 @@ const heroSchema = new mongoose.Schema(
       publicId: String,
     },
     resumeUrl: String,
+    resumePublicId: String,
+    resumeFileName: String,
     githubUrl: String,
     linkedinUrl: String,
     email: String,

@@ -6,6 +6,7 @@ import { CSS } from '@dnd-kit/utilities'
 import { Plus, Pencil, Trash2, GripVertical, Search } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { projectsApi } from '../../services/resources'
+import ConfirmDialog from '../../components/admin/ConfirmDialog'
 
 const SortableRow = ({ project, onDelete }) => {
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: project._id })
@@ -22,6 +23,9 @@ const SortableRow = ({ project, onDelete }) => {
         <p className="text-xs text-slate-400">{project.category}</p>
       </div>
       {project.featured && <span className="rounded-full bg-indigo-100 px-2 py-0.5 text-xs text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400">Featured</span>}
+      <span className={`rounded-full px-2 py-0.5 text-xs ${project.isActive !== false ? 'bg-green-100 text-green-700 dark:bg-green-500/10 dark:text-green-400' : 'bg-slate-100 text-slate-500 dark:bg-slate-800'}`}>
+        {project.isActive !== false ? 'Active' : 'Inactive'}
+      </span>
       <Link to={`/admin/projects/${project._id}`} className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800">
         <Pencil size={16} />
       </Link>
@@ -36,7 +40,7 @@ const AdminProjects = () => {
   const [projects, setProjects] = useState([])
   const [search, setSearch] = useState('')
   const [loading, setLoading] = useState(true)
-
+  const [confirmId, setConfirmId] = useState(null)
   const load = () => {
     projectsApi.getAll({ limit: 200 }).then((res) => setProjects(res.data.data)).finally(() => setLoading(false))
   }
@@ -44,9 +48,9 @@ const AdminProjects = () => {
   useEffect(() => { load() }, [])
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Delete this project?')) return
     try {
       await projectsApi.remove(id)
+      setConfirmId(null)
       toast.success('Project deleted')
       setProjects((prev) => prev.filter((p) => p._id !== id))
     } catch {
@@ -94,12 +98,19 @@ const AdminProjects = () => {
           <SortableContext items={filtered.map((p) => p._id)} strategy={verticalListSortingStrategy}>
             <div className="mt-6 space-y-2">
               {filtered.map((project) => (
-                <SortableRow key={project._id} project={project} onDelete={handleDelete} />
+                <SortableRow key={project._id} project={project} onDelete={setConfirmId} />
               ))}
             </div>
           </SortableContext>
         </DndContext>
       )}
+
+      <ConfirmDialog
+        open={!!confirmId}
+        onClose={() => setConfirmId(null)}
+        onConfirm={() => handleDelete(confirmId)}
+        message="This project will be permanently deleted."
+      />
     </div>
   )
 }

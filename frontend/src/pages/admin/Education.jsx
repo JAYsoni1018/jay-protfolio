@@ -3,10 +3,11 @@ import { Plus, Pencil, Trash2 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import Modal from '../../components/admin/Modal'
 import { educationApi } from '../../services/resources'
+import ConfirmDialog from '../../components/admin/ConfirmDialog'
 
 const emptyEducation = {
     degree: '', institution: '', fieldOfStudy: '', startDate: '', endDate: '',
-    location: '', description: '', grade: '', coursework: [], displayOrder: 0,
+    location: '', description: '', grade: '', coursework: [], isActive: true, displayOrder: 0,
 }
 
 const AdminEducation = () => {
@@ -15,7 +16,7 @@ const AdminEducation = () => {
     const [editing, setEditing] = useState(null)
     const [form, setForm] = useState(emptyEducation)
     const [courseInput, setCourseInput] = useState('')
-
+    const [confirmId, setConfirmId] = useState(null)
     const load = () => educationApi.getAll().then((res) => setItems(res.data.data))
     useEffect(() => { load() }, [])
 
@@ -44,9 +45,9 @@ const AdminEducation = () => {
     }
 
     const handleDelete = async (id) => {
-        if (!window.confirm('Delete this entry?')) return
         await educationApi.remove(id)
         toast.success('Deleted')
+        setConfirmId(null)
         load()
     }
 
@@ -72,32 +73,64 @@ const AdminEducation = () => {
                         <div className="flex-1">
                             <p className="text-sm font-medium">{item.degree}</p>
                             <p className="text-xs text-slate-400">{item.institution} · Priority: {item.displayOrder}</p>                        </div>
+                        <span className={`rounded-full px-2 py-0.5 text-xs ${item.isActive !== false ? 'bg-green-100 text-green-700 dark:bg-green-500/10 dark:text-green-400' : 'bg-slate-100 text-slate-500 dark:bg-slate-800'}`}>
+                            {item.isActive !== false ? 'Active' : 'Inactive'}
+                        </span>
                         <button onClick={() => openEdit(item)} className="rounded-lg p-2 hover:bg-slate-100 dark:hover:bg-slate-800"><Pencil size={16} /></button>
-                        <button onClick={() => handleDelete(item._id)} className="rounded-lg p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10"><Trash2 size={16} /></button>
+                        <button onClick={() => setConfirmId(item._id)} className="rounded-lg p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10"><Trash2 size={16} /></button>
                     </div>
                 ))}
             </div>
 
             <Modal open={modalOpen} onClose={() => setModalOpen(false)} title={editing ? 'Edit Education' : 'Add Education'}>
                 <form onSubmit={handleSubmit} className="space-y-4">
-                    <input required placeholder="Degree" value={form.degree} onChange={(e) => setForm({ ...form, degree: e.target.value })}
-                        className="w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700" />
-                    <input required placeholder="Institution" value={form.institution} onChange={(e) => setForm({ ...form, institution: e.target.value })}
-                        className="w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700" />
-                    <input placeholder="Field of Study" value={form.fieldOfStudy} onChange={(e) => setForm({ ...form, fieldOfStudy: e.target.value })}
-                        className="w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700" />
-                    <div className="grid grid-cols-2 gap-3">
-                        <input type="date" value={form.startDate} onChange={(e) => setForm({ ...form, startDate: e.target.value })}
-                            className="w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700" />
-                        <input type="date" value={form.endDate} onChange={(e) => setForm({ ...form, endDate: e.target.value })}
+                    <div>
+                        <label className="text-sm font-medium">Degree</label>
+                        <input required placeholder="Degree" value={form.degree} onChange={(e) => setForm({ ...form, degree: e.target.value })}
                             className="w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700" />
                     </div>
-                    <input placeholder="Location" value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })}
-                        className="w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700" />
-                    <input placeholder="Grade / CGPA" value={form.grade} onChange={(e) => setForm({ ...form, grade: e.target.value })}
-                        className="w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700" />
-                    <textarea placeholder="Description" rows={3} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })}
-                        className="w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700" />
+
+                    <div>
+                        <label className="text-sm font-medium">Institution</label>
+                        <input required placeholder="Institution" value={form.institution} onChange={(e) => setForm({ ...form, institution: e.target.value })}
+                            className="w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700" />
+                    </div>
+
+                    <div>
+                        <label className="text-sm font-medium">Field of Study</label>
+                        <input required placeholder="Field of Study" value={form.fieldOfStudy} onChange={(e) => setForm({ ...form, fieldOfStudy: e.target.value })}
+                            className="w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700" />
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                        <div>
+                            <label className="text-sm font-medium">Start Date</label>
+                            <input required type="date" value={form.startDate} onChange={(e) => setForm({ ...form, startDate: e.target.value })}
+                                className="w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700" />
+                        </div>
+                        <div>
+                            <label className="text-sm font-medium">End Date</label>
+                            <input type="date" value={form.endDate} onChange={(e) => setForm({ ...form, endDate: e.target.value })}
+                                className="w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700" />
+                        </div>
+
+
+                    </div>
+                    <div>
+                        <label className="text-sm font-medium">Location</label>
+                        <input required placeholder="Location" value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })}
+                            className="w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700" />
+                    </div>
+                    <div>
+                        <label className="text-sm font-medium">Grade / CGPA</label>
+                        <input placeholder="Grade / CGPA" value={form.grade} onChange={(e) => setForm({ ...form, grade: e.target.value })}
+                            className="w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700" />
+                    </div>
+                    <div>
+                        <label className="text-sm font-medium">Description</label>
+                        <textarea placeholder="Description" rows={3} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })}
+                            className="w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700" />
+                    </div>
+
                     <div>
                         <label className="text-sm font-medium">Priority (higher shows first)</label>
                         <input type="number" placeholder="0" value={form.displayOrder}
@@ -121,11 +154,22 @@ const AdminEducation = () => {
                         </div>
                     </div>
 
+                    <div className="flex items-center gap-2">
+                        <input type="checkbox" id="education-active" checked={form.isActive !== false} onChange={(e) => setForm({ ...form, isActive: e.target.checked })} className="h-4 w-4" />
+                        <label htmlFor="education-active" className="text-sm font-medium">Active</label>
+                    </div>
+
                     <button type="submit" className="w-full rounded-xl bg-indigo-600 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700">
-                        Save
+                        {editing ? 'Update' : 'Save'}
                     </button>
                 </form>
             </Modal>
+            <ConfirmDialog
+                open={!!confirmId}
+                onClose={() => setConfirmId(null)}
+                onConfirm={() => handleDelete(confirmId)}
+                message="This education item will be permanently deleted."
+            />
         </div>
     )
 }

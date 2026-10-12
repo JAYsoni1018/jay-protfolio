@@ -76,7 +76,7 @@ const Contact = () => {
                                     value={form[field.name]}
                                     onChange={handleChange}
                                     placeholder={field.label}
-                                    className={`w-full rounded-xl border bg-transparent px-4 py-3 text-sm outline-none transition focus:ring-2 focus:ring-indigo-500 ${errors[field.name] ? 'border-red-400' : 'border-slate-300 dark:border-slate-700'
+                                    className={`w-full rounded-xl border bg-transparent px-4 py-3 text-sm placeholder:text-slate-500 dark:placeholder:text-slate-400 outline-none transition focus:ring-2 focus:ring-indigo-500 ${errors[field.name] ? 'border-red-400' : 'border-slate-300 dark:border-slate-700'
                                         }`}
                                 />
                                 {errors[field.name] && <p className="mt-1 text-xs text-red-500">{errors[field.name]}</p>}
@@ -91,7 +91,7 @@ const Contact = () => {
                             value={form.subject}
                             onChange={handleChange}
                             placeholder="Subject"
-                            className={`w-full rounded-xl border bg-transparent px-4 py-3 text-sm outline-none transition focus:ring-2 focus:ring-indigo-500 ${errors.subject ? 'border-red-400' : 'border-slate-300 dark:border-slate-700'
+                            className={`w-full rounded-xl border bg-transparent px-4 py-3 text-sm placeholder:text-slate-500 dark:placeholder:text-slate-400 outline-none transition focus:ring-2 focus:ring-indigo-500 ${errors.subject ? 'border-red-400' : 'border-slate-300 dark:border-slate-700'
                                 }`}
                         />
                         {errors.subject && <p className="mt-1 text-xs text-red-500">{errors.subject}</p>}
@@ -104,7 +104,7 @@ const Contact = () => {
                             onChange={handleChange}
                             placeholder="Your message..."
                             rows={5}
-                            className={`w-full resize-none rounded-xl border bg-transparent px-4 py-3 text-sm outline-none transition focus:ring-2 focus:ring-indigo-500 ${errors.message ? 'border-red-400' : 'border-slate-300 dark:border-slate-700'
+                            className={`w-full resize-none rounded-xl border bg-transparent px-4 py-3 text-sm placeholder:text-slate-500 dark:placeholder:text-slate-400 outline-none transition focus:ring-2 focus:ring-indigo-500 ${errors.message ? 'border-red-400' : 'border-slate-300 dark:border-slate-700'
                                 }`}
                         />
                         {errors.message && <p className="mt-1 text-xs text-red-500">{errors.message}</p>}

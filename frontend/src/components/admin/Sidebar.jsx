@@ -4,6 +4,7 @@ import {
     Award, BadgeCheck, FileText, Link2, Mail, FileBadge, Settings, LogOut, X,
 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
+import { useUnsavedChanges } from '../../context/unsavedChanges'
 import toast from 'react-hot-toast'
 
 const NAV_ITEMS = [
@@ -25,6 +26,7 @@ const NAV_ITEMS = [
 
 const Sidebar = ({ open, onClose }) => {
     const { logout } = useAuth()
+    const { isDirty } = useUnsavedChanges()
     const navigate = useNavigate()
 
     const handleLogout = async () => {
@@ -58,7 +60,13 @@ const Sidebar = ({ open, onClose }) => {
                         <NavLink
                             key={item.to}
                             to={item.to}
-                            onClick={onClose}
+                            onClick={(event) => {
+                                if (isDirty && !window.confirm('You have unsaved changes. Leave without saving?')) {
+                                    event.preventDefault()
+                                    return
+                                }
+                                onClose()
+                            }}
                             className={({ isActive }) =>
                                 `flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${isActive
                                     ? 'bg-indigo-600 text-white'

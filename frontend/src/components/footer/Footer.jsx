@@ -72,9 +72,9 @@ const Footer = () => {
                 </button>
             </div>
 
-            <p className="mt-8 text-center text-xs text-slate-400">
+            {/* <p className="mt-8 text-center text-xs text-slate-400">
                 © {new Date().getFullYear()} {hero?.name || 'Jay'}. All rights reserved.
-            </p>
+            </p> */}
         </footer>
     )
 }

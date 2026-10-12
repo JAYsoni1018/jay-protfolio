@@ -1,15 +1,19 @@
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
-import { Award } from 'lucide-react'
+import { Award, Download, FileText } from 'lucide-react'
 import ScrollReveal from '../common/ScrollReveal'
 import { achievementsApi } from '../../services/resources'
 import { formatDate } from '../../utils/formatDate'
+import { downloadFile, getExtension, slugifyFilename } from '../../utils/downloadFile'
 
 const Achievements = () => {
     const [items, setItems] = useState([])
 
     useEffect(() => {
-        achievementsApi.getAll({ limit: 100 }).then((res) => setItems(res.data.data)).catch(() => { })
+        achievementsApi.getAll({ limit: 100 }).then((res) => {
+            const sorted = res.data.data.filter((item) => item.isActive !== false).sort((a, b) => b.displayOrder - a.displayOrder)
+            setItems(sorted)
+        }).catch(() => { })
     }, [])
 
     if (items.length === 0) return null
@@ -31,10 +35,16 @@ const Achievements = () => {
                         >
                             <div className="flex items-start gap-4">
                                 {item.image?.url ? (
-                                    <img src={item.image.url} alt={item.title} className="h-12 w-12 rounded-lg object-cover" />
+                                    (item.image.isPdf || item.image.url?.toLowerCase().endsWith('.pdf')) ? (
+                                        <div className="flex h-20 w-20 flex-shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-400 dark:bg-slate-800">
+                                            <FileText size={32} />
+                                        </div>
+                                    ) : (
+                                        <img src={item.image.url} alt={item.title} className="h-20 w-20 flex-shrink-0 rounded-lg object-cover" />
+                                    )
                                 ) : (
-                                    <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-indigo-100 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400">
-                                        <Award size={20} />
+                                    <div className="flex h-20 w-20 flex-shrink-0 items-center justify-center rounded-lg bg-indigo-100 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400">
+                                        <Award size={24} />
                                     </div>
                                 )}
                                 <div className="flex-1">
@@ -54,16 +64,28 @@ const Achievements = () => {
                                 <span>{formatDate(item.date)}</span>
                             </div>
 
-                            {item.verificationUrl && (
-
-                                <a href={item.verificationUrl}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="mt-3 inline-block text-sm font-medium text-indigo-500 hover:underline"
-                                >
-                                    Verify →
-                                </a>
-                            )}
+                            <div className="mt-3 flex items-center gap-4">
+                                {item.verificationUrl && (
+                                    <a
+                                        href={item.verificationUrl}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="inline-block text-sm font-medium text-indigo-500 cursor-pointer"
+                                    >
+                                        Verify →
+                                    </a>
+                                )}
+                                {item.image?.url && (
+                                    <button
+                                        onClick={() => {
+                                            downloadFile(item.image.url, `jay-achievement-${slugifyFilename(item.title)}.${getExtension(item.image.url)}`)
+                                        }}
+                                        className="inline-flex items-center gap-1 text-sm font-medium text-indigo-500 cursor-pointer "
+                                    >
+                                        Download <Download size={13} />
+                                    </button>
+                                )}
+                            </div>
                         </motion.div>
                     </ScrollReveal>
                 ))}

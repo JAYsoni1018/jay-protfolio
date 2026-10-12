@@ -1,4 +1,4 @@
-import mongoose from 'mongoose'
+import mongoose from "mongoose";
 
 const educationSchema = new mongoose.Schema(
   {
@@ -15,9 +15,10 @@ const educationSchema = new mongoose.Schema(
       url: String,
       publicId: String,
     },
+    isActive: { type: Boolean, default: true },
     displayOrder: { type: Number, default: 0 },
   },
-  { timestamps: true }
-)
+  { timestamps: true },
+);
 
-export default mongoose.model('Education', educationSchema)
+export default mongoose.model("Education", educationSchema);

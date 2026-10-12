@@ -1,4 +1,4 @@
-import mongoose from 'mongoose'
+import mongoose from "mongoose";
 
 const achievementSchema = new mongoose.Schema(
   {
@@ -11,10 +11,11 @@ const achievementSchema = new mongoose.Schema(
       publicId: String,
     },
     verificationUrl: String,
-    category: { type: String, default: 'General' }, // e.g. Hackathon, Award, Competition
+    category: { type: String, default: "General" }, // e.g. Hackathon, Award, Competition
+    isActive: { type: Boolean, default: true },
     displayOrder: { type: Number, default: 0 },
   },
-  { timestamps: true }
-)
+  { timestamps: true },
+);
 
-export default mongoose.model('Achievement', achievementSchema)
+export default mongoose.model("Achievement", achievementSchema);

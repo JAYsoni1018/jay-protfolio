@@ -1,4 +1,4 @@
-import mongoose from 'mongoose'
+import mongoose from "mongoose";
 
 const experienceSchema = new mongoose.Schema(
   {
@@ -11,17 +11,18 @@ const experienceSchema = new mongoose.Schema(
     location: String,
     employmentType: {
       type: String,
-      enum: ['Full-time', 'Part-time', 'Internship', 'Contract', 'Freelance'],
-      default: 'Full-time',
+      enum: ["Full-time", "Part-time", "Internship", "Contract", "Freelance"],
+      default: "Full-time",
     },
     startDate: Date,
     endDate: Date,
     isCurrent: { type: Boolean, default: false },
     description: String,
     technologies: [String],
+    isActive: { type: Boolean, default: true },
     displayOrder: { type: Number, default: 0 },
   },
-  { timestamps: true }
-)
+  { timestamps: true },
+);
 
-export default mongoose.model('Experience', experienceSchema)
+export default mongoose.model("Experience", experienceSchema);

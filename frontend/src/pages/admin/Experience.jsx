@@ -3,11 +3,12 @@ import { Plus, Pencil, Trash2 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import Modal from '../../components/admin/Modal'
 import { experienceApi } from '../../services/resources'
+import ConfirmDialog from '../../components/admin/ConfirmDialog'
 
 const emptyExperience = {
     jobTitle: '', company: '', location: '', employmentType: 'Full-time',
     startDate: '', endDate: '', isCurrent: false, description: '',
-    technologies: [], displayOrder: 0,
+    technologies: [], isActive: true, displayOrder: 0,
 }
 
 const AdminExperience = () => {
@@ -16,7 +17,7 @@ const AdminExperience = () => {
     const [editing, setEditing] = useState(null)
     const [form, setForm] = useState(emptyExperience)
     const [techInput, setTechInput] = useState('')
-
+    const [confirmId, setConfirmId] = useState(null)
     const load = () => experienceApi.getAll().then((res) => setItems(res.data.data))
     useEffect(() => { load() }, [])
 
@@ -41,9 +42,9 @@ const AdminExperience = () => {
     }
 
     const handleDelete = async (id) => {
-        if (!window.confirm('Delete this entry?')) return
         await experienceApi.remove(id)
         toast.success('Deleted')
+        setConfirmId(null)
         load()
     }
 
@@ -69,38 +70,63 @@ const AdminExperience = () => {
                         <div className="flex-1">
                             <p className="text-sm font-medium">{item.jobTitle}</p>
                             <p className="text-xs text-slate-400">{item.company} · Priority: {item.displayOrder}</p>                        </div>
+                        <span className={`rounded-full px-2 py-0.5 text-xs ${item.isActive !== false ? 'bg-green-100 text-green-700 dark:bg-green-500/10 dark:text-green-400' : 'bg-slate-100 text-slate-500 dark:bg-slate-800'}`}>
+                            {item.isActive !== false ? 'Active' : 'Inactive'}
+                        </span>
                         <button onClick={() => openEdit(item)} className="rounded-lg p-2 hover:bg-slate-100 dark:hover:bg-slate-800"><Pencil size={16} /></button>
-                        <button onClick={() => handleDelete(item._id)} className="rounded-lg p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10"><Trash2 size={16} /></button>
+                        <button onClick={() => setConfirmId(item._id)} className="rounded-lg p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10"><Trash2 size={16} /></button>
                     </div>
                 ))}
             </div>
 
             <Modal open={modalOpen} onClose={() => setModalOpen(false)} title={editing ? 'Edit Experience' : 'Add Experience'}>
                 <form onSubmit={handleSubmit} className="space-y-4">
-                    <input required placeholder="Job Title" value={form.jobTitle} onChange={(e) => setForm({ ...form, jobTitle: e.target.value })}
-                        className="w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700" />
-                    <input required placeholder="Company" value={form.company} onChange={(e) => setForm({ ...form, company: e.target.value })}
-                        className="w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700" />
-                    <select value={form.employmentType} onChange={(e) => setForm({ ...form, employmentType: e.target.value })}
-                        className="w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700">
-                        {['Full-time', 'Part-time', 'Internship', 'Contract', 'Freelance'].map((t) => <option key={t} className="bg-white text-slate-900 dark:bg-slate-900 dark:text-white">{t}</option>)}
-                    </select>
-
-
-                    <input placeholder="Location" value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })}
-                        className="w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700" />
-                    <div className="grid grid-cols-2 gap-3">
-                        <input type="date" value={form.startDate} onChange={(e) => setForm({ ...form, startDate: e.target.value })}
+                    <div>
+                        <label className="text-sm font-medium">Job Title</label>
+                        <input required placeholder="Job Title" value={form.jobTitle} onChange={(e) => setForm({ ...form, jobTitle: e.target.value })}
                             className="w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700" />
-                        <input type="date" disabled={form.isCurrent} value={form.endDate} onChange={(e) => setForm({ ...form, endDate: e.target.value })}
-                            className="w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50 dark:border-slate-700" />
+                    </div>
+                    <div>
+                        <label className="text-sm font-medium">Company</label>
+                        <input required placeholder="Company" value={form.company} onChange={(e) => setForm({ ...form, company: e.target.value })}
+                            className="w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700" />
+                    </div>
+                    <div>
+                        <label className="text-sm font-medium">Employment Type</label>
+                        <select required value={form.employmentType} onChange={(e) => setForm({ ...form, employmentType: e.target.value })}
+                            className="w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700">
+                            {['Full-time', 'Part-time', 'Internship', 'Contract', 'Freelance'].map((t) => <option key={t} className="bg-white text-slate-900 dark:bg-slate-900 dark:text-white">{t}</option>)}
+                        </select>
+                    </div>
+
+                    <div>
+                        <label className="text-sm font-medium">Location</label>
+                        <input placeholder="Location" value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })}
+                            className="w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700" />
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                        <div>
+                            <label className="text-sm font-medium">Start Date</label>
+                            <input required type="date" value={form.startDate} onChange={(e) => setForm({ ...form, startDate: e.target.value })}
+                                className="w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700" />
+                        </div>
+                        <div>
+                            <label className="text-sm font-medium">End Date</label>
+                            <input type="date" disabled={form.isCurrent} value={form.endDate} onChange={(e) => setForm({ ...form, endDate: e.target.value })}
+                                className="w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50 dark:border-slate-700" />
+                        </div>
+
+
                     </div>
                     <div className="flex items-center gap-2">
                         <input type="checkbox" id="is-current" checked={form.isCurrent} onChange={(e) => setForm({ ...form, isCurrent: e.target.checked })} className="h-4 w-4" />
                         <label htmlFor="is-current" className="text-sm font-medium">Current Position</label>
                     </div>
-                    <textarea placeholder="Description" rows={3} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })}
-                        className="w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700" />
+                    <div>
+                        <label className="text-sm font-medium">Description</label>
+                        <textarea required placeholder="Description" rows={3} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })}
+                            className="w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700" />
+                    </div>
 
                     <div>
                         <label className="text-sm font-medium">Technologies</label>
@@ -125,12 +151,25 @@ const AdminExperience = () => {
                         <p className="mt-1 text-xs text-slate-400">Higher number is displayed first.</p>
                     </div>
 
+                    <div className="flex items-center gap-2">
+                        <input type="checkbox" id="experience-active" checked={form.isActive !== false} onChange={(e) => setForm({ ...form, isActive: e.target.checked })} className="h-4 w-4" />
+                        <label htmlFor="experience-active" className="text-sm font-medium">Active</label>
+                    </div>
+
                     <button type="submit" className="w-full rounded-xl bg-indigo-600 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700">
-                        Save
+                        {editing ? 'Update' : 'Save'}
                     </button>
                 </form>
             </Modal>
+            <ConfirmDialog
+                open={!!confirmId}
+                onClose={() => setConfirmId(null)}
+                onConfirm={() => handleDelete(confirmId)}
+                message="This experience will be permanently deleted."
+            />
         </div>
+
+
     )
 }
 

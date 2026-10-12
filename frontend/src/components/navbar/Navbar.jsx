@@ -2,23 +2,40 @@ import { useEffect, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Menu, X } from 'lucide-react'
 import ThemeToggle from '../common/ThemeToggle'
+import { sectionsApi } from '../../services/resources'
 
-const NAV_LINKS = [
-  { label: 'Home', href: '#home' },
-  { label: 'About', href: '#about' },
-  { label: 'Skills', href: '#skills' },
-  { label: 'Education', href: '#education' },
-  { label: 'Experience', href: '#experience' },
-  { label: 'Projects', href: '#projects' },
-  { label: 'Certificates', href: '#certificates' },
-  { label: 'Publications', href: '#publications' },
-  { label: 'Contact', href: '#contact' },
+const DEFAULT_NAV_LINKS = [
+  { label: 'Home', href: '#home', sectionKey: 'hero' },
+  { label: 'About', href: '#about', sectionKey: 'about' },
+  { label: 'Skills', href: '#skills', sectionKey: 'skills' },
+  { label: 'Education', href: '#education', sectionKey: 'education' },
+  { label: 'Experience', href: '#experience', sectionKey: 'experience' },
+  { label: 'Projects', href: '#projects', sectionKey: 'projects' },
+  { label: 'Achievements', href: '#achievements', sectionKey: 'achievements' },
+  { label: 'Certificates', href: '#certificates', sectionKey: 'certificates' },
+  { label: 'Publications', href: '#publications', sectionKey: 'publications' },
+  { label: 'Contact', href: '#contact', sectionKey: 'contact' },
 ]
 
 const Navbar = () => {
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const [activeSection, setActiveSection] = useState('home')
+  const [navLinks, setNavLinks] = useState(DEFAULT_NAV_LINKS)
+
+  useEffect(() => {
+    sectionsApi.getAll().then((res) => {
+      const links = res.data.data
+        .filter((section) => section.enabled !== false)
+        .sort((a, b) => a.displayOrder - b.displayOrder)
+        .map((section) => ({
+          label: section.title,
+          href: `#${section.sectionKey === 'hero' ? 'home' : section.sectionKey}`,
+          sectionKey: section.sectionKey,
+        }))
+      setNavLinks(links)
+    }).catch(() => { })
+  }, [])
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20)
@@ -27,7 +44,7 @@ const Navbar = () => {
   }, [])
 
   useEffect(() => {
-    const sections = NAV_LINKS.map((l) => document.getElementById(l.href.slice(1))).filter(Boolean)
+    const sections = navLinks.map((l) => document.getElementById(l.href.slice(1))).filter(Boolean)
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -38,20 +55,22 @@ const Navbar = () => {
     )
     sections.forEach((s) => observer.observe(s))
     return () => observer.disconnect()
-  }, [])
+  }, [navLinks])
 
   const handleNavClick = (href) => {
     setMobileOpen(false)
-    document.querySelector(href)?.scrollIntoView({ behavior: 'smooth' })
+    const targetId = href.slice(1)
+    requestAnimationFrame(() => {
+      document.getElementById(targetId)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    })
   }
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled
           ? 'bg-white/70 dark:bg-slate-900/70 backdrop-blur-md shadow-sm'
           : 'bg-transparent'
-      }`}
+        }`}
     >
       <nav className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
         <a href="#home" onClick={(e) => { e.preventDefault(); handleNavClick('#home') }} className="text-lg font-bold tracking-tight">
@@ -59,17 +78,16 @@ const Navbar = () => {
         </a>
 
         <ul className="hidden md:flex items-center gap-8">
-          {NAV_LINKS.map((link) => (
+          {navLinks.map((link) => (
             <li key={link.href}>
               <a
                 href={link.href}
                 aria-current={activeSection === link.href.slice(1) ? 'page' : undefined}
                 onClick={(e) => { e.preventDefault(); handleNavClick(link.href) }}
-                className={`text-sm font-medium transition-colors ${
-                  activeSection === link.href.slice(1)
+                className={`text-sm font-medium transition-colors ${activeSection === link.href.slice(1)
                     ? 'text-indigo-500'
                     : 'text-slate-600 dark:text-slate-300 hover:text-indigo-500'
-                }`}
+                  }`}
               >
                 {link.label}
               </a>
@@ -98,7 +116,7 @@ const Navbar = () => {
             className="md:hidden overflow-hidden bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800"
           >
             <ul className="flex flex-col gap-1 px-6 py-4">
-              {NAV_LINKS.map((link) => (
+              {navLinks.map((link) => (
                 <li key={link.href}>
                   <a
                     href={link.href}

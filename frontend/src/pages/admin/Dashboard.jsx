@@ -34,7 +34,7 @@ const AdminDashboard = () => {
                 <StatCard label="Achievements" value={counts.achievements} icon={Award} color="amber" />
                 <StatCard label="Certificates" value={counts.certificates} icon={BadgeCheck} color="teal" />
                 <StatCard label="Publications" value={counts.publications} icon={FileText} color="pink" />
-                <StatCard label="Messages" value={`${counts.unreadMessages}/${counts.messages}`} icon={Mail} color="red" />
+                <StatCard label="Messages" value={` ${counts.messages}`} icon={Mail} color="red" />
             </div>
 
             <div className="mt-6 flex flex-wrap gap-3">

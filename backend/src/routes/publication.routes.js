@@ -1,4 +1,4 @@
-import SocialLink from '../models/SocialLink.js'
-import { buildCrudRouter } from '../utils/crudRouter.js'
+import Publication from "../models/Publication.js";
+import { buildCrudRouter } from "../utils/crudRouter.js";
 
-export default buildCrudRouter(SocialLink, 'displayOrder')
+export default buildCrudRouter(Publication, "displayOrder");

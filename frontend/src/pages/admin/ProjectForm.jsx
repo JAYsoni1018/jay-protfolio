@@ -9,8 +9,8 @@ import { projectsApi } from '../../services/resources'
 
 const emptyProject = {
     title: '', slug: '', shortDescription: '', fullDescription: '',
-    technologies: [], category: '', githubUrl: '', liveDemoUrl: '',
-    featured: false, displayOrder: 0, images: [],
+    technologies: [], category: '', githubUrl: '', liveDemoUrl: '', videoDemoUrl: '',
+    featured: false, isActive: true, displayOrder: 0, images: [],
 }
 
 const slugify = (text) => text.toLowerCase().trim().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-')
@@ -48,6 +48,11 @@ const ProjectForm = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault()
+        const plainText = form.fullDescription.replace(/<[^>]*>/g, '').trim()
+        if (!plainText) {
+            toast.error('Full description is required')
+            return
+        }
         setSaving(true)
         try {
             const payload = { ...form, thumbnail: form.images.find((i) => i.isPrimary) || form.images[0] }
@@ -88,13 +93,13 @@ const ProjectForm = () => {
                 </div>
 
                 <div>
-                    <label className="text-sm font-medium">Slug</label>
+                    <label className="text-sm font-medium">Slug (auto-generated)</label>
                     <input
-                        required
+                        disabled
                         value={form.slug}
-                        onChange={(e) => setForm({ ...form, slug: slugify(e.target.value) })}
-                        className="mt-1 w-full rounded-xl border border-slate-300 bg-transparent px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700"
+                        className="mt-1 w-full cursor-not-allowed rounded-xl border border-slate-300 bg-slate-100 px-4 py-2.5 text-sm text-slate-500 outline-none dark:border-slate-700 dark:bg-slate-800"
                     />
+                    <p className="mt-1 text-xs text-slate-400">This is generated from the title and used in the project's URL.</p>
                 </div>
 
                 <div>
@@ -157,6 +162,16 @@ const ProjectForm = () => {
                         />
                         <label htmlFor="featured" className="text-sm font-medium">Featured Project</label>
                     </div>
+                    <div className="flex items-center gap-2 pt-6">
+                        <input
+                            type="checkbox"
+                            id="project-active"
+                            checked={form.isActive !== false}
+                            onChange={(e) => setForm({ ...form, isActive: e.target.checked })}
+                            className="h-4 w-4"
+                        />
+                        <label htmlFor="project-active" className="text-sm font-medium">Active Project</label>
+                    </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
@@ -173,6 +188,15 @@ const ProjectForm = () => {
                         <input
                             value={form.liveDemoUrl}
                             onChange={(e) => setForm({ ...form, liveDemoUrl: e.target.value })}
+                            className="mt-1 w-full rounded-xl border border-slate-300 bg-transparent px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700"
+                        />
+                    </div>
+                    <div>
+                        <label className="text-sm font-medium">Video Demo URL</label>
+                        <input
+                            value={form.videoDemoUrl}
+                            onChange={(e) => setForm({ ...form, videoDemoUrl: e.target.value })}
+                            placeholder="LinkedIn post, YouTube link, etc."
                             className="mt-1 w-full rounded-xl border border-slate-300 bg-transparent px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700"
                         />
                     </div>

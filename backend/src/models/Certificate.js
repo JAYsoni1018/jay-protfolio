@@ -1,4 +1,4 @@
-import mongoose from 'mongoose'
+import mongoose from "mongoose";
 
 const certificateSchema = new mongoose.Schema(
   {
@@ -13,11 +13,12 @@ const certificateSchema = new mongoose.Schema(
       publicId: String,
     },
     skills: [String], // tags/technologies covered by the certificate
-    category: { type: String, default: 'General' }, // e.g. Cloud, AI/ML, Programming
+    category: { type: String, default: "General" }, // e.g. Cloud, AI/ML, Programming
     featured: { type: Boolean, default: false },
+    isActive: { type: Boolean, default: true },
     displayOrder: { type: Number, default: 0 },
   },
-  { timestamps: true }
-)
+  { timestamps: true },
+);
 
-export default mongoose.model('Certificate', certificateSchema)
+export default mongoose.model("Certificate", certificateSchema);

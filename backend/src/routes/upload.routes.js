@@ -9,6 +9,7 @@ import {
   uploadImageHandler,
   uploadResumeHandler,
   deleteImageHandler,
+  deleteResumeHandler,
   deleteCertificateHandler,
   uploadCertificateHandler,
 } from "../controllers/upload.controller.js";
@@ -23,6 +24,7 @@ router.post(
   uploadResumeHandler,
 );
 router.delete("/image/:publicId", protect, deleteImageHandler);
+router.delete("/resume/:publicId", protect, deleteResumeHandler);
 router.post(
   "/certificate",
   protect,
