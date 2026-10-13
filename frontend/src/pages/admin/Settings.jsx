@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { DndContext, closestCenter } from '@dnd-kit/core'
 import { SortableContext, useSortable, arrayMove, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
@@ -39,7 +39,7 @@ const AdminSettings = () => {
     const [sections, setSections] = useState([])
     const [skillsMode, setSkillsMode] = useState('progress')
     const [saving, setSaving] = useState(false)
-    const { setIsDirty } = useUnsavedChanges()
+    const { setIsDirty, setSaveChanges } = useUnsavedChanges()
 
 
     const load = () => {
@@ -76,7 +76,7 @@ const AdminSettings = () => {
         markDirty()
     }
 
-    const handleSave = async () => {
+    const handleSave = useCallback(async () => {
         setSaving(true)
         try {
             const ordered = orderSections(sections)
@@ -89,12 +89,19 @@ const AdminSettings = () => {
             setSections(ordered.map((section, index) => ({ ...section, displayOrder: index })))
             setIsDirty(false)
             toast.success('Settings saved')
+            return true
         } catch {
             toast.error('Failed to save settings')
+            return false
         } finally {
             setSaving(false)
         }
-    }
+    }, [sections, skillsMode, setIsDirty])
+
+    useEffect(() => {
+        setSaveChanges(() => handleSave)
+        return () => setSaveChanges(null)
+    }, [handleSave, setSaveChanges])
 
     return (
         <div className="mx-auto max-w-xl">

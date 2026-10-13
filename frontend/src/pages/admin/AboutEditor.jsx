@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import { Save, Loader2, Plus, X } from 'lucide-react'
 import ImageUploader from '../../components/admin/ImageUploader'
 import { aboutApi } from '../../services/resources'
+import { useUnsavedChanges } from '../../context/unsavedChanges'
 
 const emptyAbout = {
     biography: '', professionalSummary: '', interests: [], careerFocus: '', stats: [], profileImage: null,
@@ -13,43 +14,63 @@ const AboutEditor = () => {
     const [interestInput, setInterestInput] = useState('')
     const [loading, setLoading] = useState(true)
     const [saving, setSaving] = useState(false)
+    const { setIsDirty, setSaveChanges } = useUnsavedChanges()
 
     useEffect(() => {
         aboutApi.get().then((res) => { if (res.data.data) setForm(res.data.data) }).finally(() => setLoading(false))
     }, [])
 
-    const handleSubmit = async (e) => {
-        e.preventDefault()
+    const handleSave = useCallback(async () => {
         setSaving(true)
         try {
             await aboutApi.update(form)
+            setIsDirty(false)
             toast.success('About section updated')
+            return true
         } catch {
             toast.error('Failed to save')
+            return false
         } finally {
             setSaving(false)
         }
+    }, [form, setIsDirty])
+
+    useEffect(() => {
+        setSaveChanges(() => handleSave)
+        return () => setSaveChanges(null)
+    }, [handleSave, setIsDirty, setSaveChanges])
+
+    useEffect(() => () => setIsDirty(false), [setIsDirty])
+
+    const updateForm = (nextForm) => {
+        setForm(nextForm)
+        setIsDirty(true)
+    }
+
+    const handleSubmit = async (e) => {
+        e.preventDefault()
+        await handleSave()
     }
 
     const addInterest = () => {
         if (interestInput.trim()) {
-            setForm({ ...form, interests: [...form.interests, interestInput.trim()] })
+            updateForm({ ...form, interests: [...form.interests, interestInput.trim()] })
             setInterestInput('')
         }
     }
 
     const addStat = () => {
-        setForm({ ...form, stats: [...form.stats, { label: '', value: '', order: form.stats.length }] })
+        updateForm({ ...form, stats: [...form.stats, { label: '', value: '', order: form.stats.length }] })
     }
 
     const updateStat = (i, field, value) => {
         const stats = [...form.stats]
         stats[i][field] = value
-        setForm({ ...form, stats })
+        updateForm({ ...form, stats })
     }
 
     const removeStat = (i) => {
-        setForm({ ...form, stats: form.stats.filter((_, idx) => idx !== i) })
+        updateForm({ ...form, stats: form.stats.filter((_, idx) => idx !== i) })
     }
 
     if (loading) return <div className="flex h-64 items-center justify-center">Loading...</div>
@@ -63,13 +84,13 @@ const AboutEditor = () => {
                     <div className="mt-1">
                         {/* <ImageUploader
                             images={form.profileImage ? [{ ...form.profileImage, isPrimary: true }] : []}
-                            onChange={(images) => setForm({ ...form, profileImage: images[0] || null })}
+                            onChange={(images) => updateForm({ ...form, profileImage: images[0] || null })}
                             folder="about"
                         /> */}
 
                         <ImageUploader
                             images={form.profileImage ? [{ ...form.profileImage, isPrimary: true }] : []}
-                            onChange={(images) => setForm({ ...form, profileImage: images[0] || null })}
+                            onChange={(images) => updateForm({ ...form, profileImage: images[0] || null })}
                             folder="about"
                             multiple={false}
                         />
@@ -78,33 +99,33 @@ const AboutEditor = () => {
 
                 <div>
                     <label className="text-sm font-medium">Biography</label>
-                    <textarea rows={3} value={form.biography} onChange={(e) => setForm({ ...form, biography: e.target.value })}
+                    <textarea rows={3} value={form.biography} onChange={(e) => updateForm({ ...form, biography: e.target.value })}
                         className="mt-1 w-full rounded-xl border border-slate-300 bg-transparent px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700" />
                 </div>
 
                 <div>
                     <label className="text-sm font-medium">Professional Summary</label>
-                    <textarea rows={3} value={form.professionalSummary} onChange={(e) => setForm({ ...form, professionalSummary: e.target.value })}
+                    <textarea rows={3} value={form.professionalSummary} onChange={(e) => updateForm({ ...form, professionalSummary: e.target.value })}
                         className="mt-1 w-full rounded-xl border border-slate-300 bg-transparent px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700" />
                 </div>
 
                 <div>
                     <label className="text-sm font-medium">Career Focus</label>
-                    <input value={form.careerFocus} onChange={(e) => setForm({ ...form, careerFocus: e.target.value })}
+                    <input value={form.careerFocus} onChange={(e) => updateForm({ ...form, careerFocus: e.target.value })}
                         className="mt-1 w-full rounded-xl border border-slate-300 bg-transparent px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700" />
                 </div>
 
                 <div>
                     <label className="text-sm font-medium">Interests</label>
                     <div className="mt-1 flex gap-2">
-                        <input value={interestInput} onChange={(e) => setInterestInput(e.target.value)}
+                        <input value={interestInput} onChange={(e) => { setInterestInput(e.target.value); setIsDirty(true) }}
                             onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addInterest() } }}
                             className="flex-1 rounded-xl border border-slate-300 bg-transparent px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700" />
                         <button type="button" onClick={addInterest} className="rounded-xl bg-slate-100 px-4 text-sm dark:bg-slate-800">Add</button>
                     </div>
                     <div className="mt-2 flex flex-wrap gap-2">
                         {form.interests.map((i) => (
-                            <span key={i} onClick={() => setForm({ ...form, interests: form.interests.filter((x) => x !== i) })}
+                            <span key={i} onClick={() => updateForm({ ...form, interests: form.interests.filter((x) => x !== i) })}
                                 className="cursor-pointer rounded-full bg-slate-100 px-3 py-1 text-xs dark:bg-slate-800">{i} ×</span>
                         ))}
                     </div>

@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import {
     LayoutDashboard, User, Sparkles, GraduationCap, Briefcase, FolderKanban,
@@ -5,6 +6,7 @@ import {
 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { useUnsavedChanges } from '../../context/unsavedChanges'
+import ConfirmDialog from './ConfirmDialog'
 import toast from 'react-hot-toast'
 
 const NAV_ITEMS = [
@@ -25,14 +27,52 @@ const NAV_ITEMS = [
 ]
 
 const Sidebar = ({ open, onClose }) => {
+    const [pendingNavigation, setPendingNavigation] = useState(null)
+    const [logoutDialogOpen, setLogoutDialogOpen] = useState(false)
+    const [loggingOut, setLoggingOut] = useState(false)
     const { logout } = useAuth()
-    const { isDirty } = useUnsavedChanges()
+    const { isDirty, setIsDirty, saveChanges } = useUnsavedChanges()
     const navigate = useNavigate()
 
+    const handleNavigation = (event, to) => {
+        if (!isDirty) {
+            onClose()
+            return
+        }
+
+        event.preventDefault()
+        setPendingNavigation(to)
+    }
+
+    const handleLeaveWithoutSaving = () => {
+        setIsDirty(false)
+        onClose()
+        navigate(pendingNavigation)
+        setPendingNavigation(null)
+    }
+
+    const handleSaveChangesAndNavigate = async () => {
+        if (!saveChanges) return
+
+        const nextPath = pendingNavigation
+        const saved = await saveChanges()
+        if (!saved) return
+
+        onClose()
+        navigate(nextPath)
+        setPendingNavigation(null)
+    }
+
     const handleLogout = async () => {
-        await logout()
-        toast.success('Logged out')
-        navigate('/admin/login')
+        setLoggingOut(true)
+        try {
+            await logout()
+            toast.success('Logged out')
+            navigate('/admin/login')
+        } finally {
+            setLoggingOut(false)
+            setLogoutDialogOpen(false)
+        }
     }
 
     return (
@@ -60,13 +100,7 @@ const Sidebar = ({ open, onClose }) => {
                         <NavLink
                             key={item.to}
                             to={item.to}
-                            onClick={(event) => {
-                                if (isDirty && !window.confirm('You have unsaved changes. Leave without saving?')) {
-                                    event.preventDefault()
-                                    return
-                                }
-                                onClose()
-                            }}
+                            onClick={(event) => handleNavigation(event, item.to)}
                             className={({ isActive }) =>
                                 `flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${isActive
                                     ? 'bg-indigo-600 text-white'
@@ -82,13 +116,34 @@ const Sidebar = ({ open, onClose }) => {
 
                 <div className="border-t border-slate-200 p-3 dark:border-slate-800">
                     <button
-                        onClick={handleLogout}
+                        onClick={() => setLogoutDialogOpen(true)}
                         className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-red-500 transition hover:bg-red-50 dark:hover:bg-red-500/10"
                     >
                         <LogOut size={17} /> Logout
                     </button>
                 </div>
             </aside>
+
+            <ConfirmDialog
+                open={Boolean(pendingNavigation)}
+                onClose={() => setPendingNavigation(null)}
+                onConfirm={handleSaveChangesAndNavigate}
+                onSecondary={handleLeaveWithoutSaving}
+                title="Leave without saving?"
+                message="You have unsaved changes. Save them before leaving, or leave without saving?"
+                confirmLabel="Save Changes"
+                confirmClassName="bg-green-600 hover:bg-green-700"
+                secondaryLabel="Leave Without Saving"
+            />
+
+            <ConfirmDialog
+                open={logoutDialogOpen}
+                onClose={() => setLogoutDialogOpen(false)}
+                onConfirm={handleLogout}
+                title="Log out?"
+                message={isDirty ? 'You have unsaved changes. Log out without saving them?' : 'Are you sure you want to log out?'}
+                confirmLabel={loggingOut ? 'Logging out...' : 'Log out'}
+            />
         </>
     )
 }

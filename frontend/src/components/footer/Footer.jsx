@@ -53,6 +53,7 @@ const Footer = () => {
                                     key={social._id}
                                     href={hrefFor(social.platform, social.url)}
                                     target="_blank"
+                                    title={social?.platform}
                                     rel="noopener noreferrer"
                                     className="rounded-full border border-slate-200 p-2.5 transition hover:bg-slate-100 dark:border-slate-700 dark:hover:bg-slate-800"
                                     aria-label={social.platform}

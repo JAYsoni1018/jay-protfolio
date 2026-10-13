@@ -68,8 +68,8 @@ const Navbar = () => {
   return (
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled
-          ? 'bg-white/70 dark:bg-slate-900/70 backdrop-blur-md shadow-sm'
-          : 'bg-transparent'
+        ? 'bg-white/70 dark:bg-slate-900/70 backdrop-blur-md shadow-sm'
+        : 'bg-transparent'
         }`}
     >
       <nav className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
@@ -77,7 +77,7 @@ const Navbar = () => {
           Jay<span className="text-indigo-500">.</span>
         </a>
 
-        <ul className="hidden md:flex items-center gap-8">
+        <ul className="hidden items-center gap-5 lg:flex xl:gap-8">
           {navLinks.map((link) => (
             <li key={link.href}>
               <a
@@ -85,8 +85,8 @@ const Navbar = () => {
                 aria-current={activeSection === link.href.slice(1) ? 'page' : undefined}
                 onClick={(e) => { e.preventDefault(); handleNavClick(link.href) }}
                 className={`text-sm font-medium transition-colors ${activeSection === link.href.slice(1)
-                    ? 'text-indigo-500'
-                    : 'text-slate-600 dark:text-slate-300 hover:text-indigo-500'
+                  ? 'text-indigo-500'
+                  : 'text-slate-600 dark:text-slate-300 hover:text-indigo-500'
                   }`}
               >
                 {link.label}
@@ -98,7 +98,7 @@ const Navbar = () => {
         <div className="flex items-center gap-3">
           <ThemeToggle />
           <button
-            className="md:hidden"
+            className="lg:hidden"
             onClick={() => setMobileOpen((o) => !o)}
             aria-label="Toggle menu"
           >
@@ -113,7 +113,7 @@ const Navbar = () => {
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            className="md:hidden overflow-hidden bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800"
+            className="lg:hidden overflow-hidden bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800"
           >
             <ul className="flex flex-col gap-1 px-6 py-4">
               {navLinks.map((link) => (

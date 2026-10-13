@@ -52,7 +52,7 @@ const Hero = () => {
                 />
             </div>
 
-            <div className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-12 md:grid-cols-2">
+            <div className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-12 lg:grid-cols-2">
                 <motion.div
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -125,7 +125,7 @@ const Hero = () => {
                     initial={{ opacity: 0, scale: 0.85 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ duration: 0.7, delay: 0.2 }}
-                    className="mx-auto"
+                    className="mx-auto hidden lg:block"
                 >
                     <div className="relative h-72 w-72 overflow-hidden rounded-full border-4 border-white shadow-xl dark:border-slate-800 sm:h-96 sm:w-96">
                         {hero.profilePhoto?.url ? (

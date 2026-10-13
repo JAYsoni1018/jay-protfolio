@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import { Save, Loader2 } from 'lucide-react'
 import ImageUploader from '../../components/admin/ImageUploader'
 import { heroApi } from '../../services/resources'
+import { useUnsavedChanges } from '../../context/unsavedChanges'
 
 
 const emptyHero = {
@@ -12,22 +13,42 @@ const HeroEditor = () => {
     const [form, setForm] = useState(emptyHero)
     const [loading, setLoading] = useState(true)
     const [saving, setSaving] = useState(false)
+    const { setIsDirty, setSaveChanges } = useUnsavedChanges()
 
     useEffect(() => {
         heroApi.get().then((res) => { if (res.data.data) setForm(res.data.data) }).finally(() => setLoading(false))
     }, [])
 
-    const handleSubmit = async (e) => {
-        e.preventDefault()
+    const handleSave = useCallback(async () => {
         setSaving(true)
         try {
             await heroApi.update(form)
+            setIsDirty(false)
             toast.success('Hero section updated')
+            return true
         } catch {
             toast.error('Failed to save')
+            return false
         } finally {
             setSaving(false)
         }
+    }, [form, setIsDirty])
+
+    useEffect(() => {
+        setSaveChanges(() => handleSave)
+        return () => setSaveChanges(null)
+    }, [handleSave, setIsDirty, setSaveChanges])
+
+    useEffect(() => () => setIsDirty(false), [setIsDirty])
+
+    const updateForm = (nextForm) => {
+        setForm(nextForm)
+        setIsDirty(true)
+    }
+
+    const handleSubmit = async (e) => {
+        e.preventDefault()
+        await handleSave()
     }
 
     if (loading) return <div className="flex h-64 items-center justify-center">Loading...</div>
@@ -41,7 +62,7 @@ const HeroEditor = () => {
                     <div className="mt-1">
                         <ImageUploader
                             images={form.profilePhoto ? [{ ...form.profilePhoto, isPrimary: true }] : []}
-                            onChange={(images) => setForm({ ...form, profilePhoto: images[0] || null })}
+                            onChange={(images) => updateForm({ ...form, profilePhoto: images[0] || null })}
                             folder="hero"
                             multiple={false}
                         />
@@ -50,26 +71,26 @@ const HeroEditor = () => {
 
                 <div>
                     <label className="text-sm font-medium">Name</label>
-                    <input required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })}
+                    <input required value={form.name} onChange={(e) => updateForm({ ...form, name: e.target.value })}
                         className="mt-1 w-full rounded-xl border border-slate-300 bg-transparent px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700" />
                 </div>
 
                 <div>
                     <label className="text-sm font-medium">Professional Title</label>
-                    <input required value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })}
+                    <input required value={form.title} onChange={(e) => updateForm({ ...form, title: e.target.value })}
                         placeholder="AI & Full Stack Developer"
                         className="mt-1 w-full rounded-xl border border-slate-300 bg-transparent px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700" />
                 </div>
 
                 <div>
                     <label className="text-sm font-medium">Tagline</label>
-                    <input value={form.tagline} onChange={(e) => setForm({ ...form, tagline: e.target.value })}
+                    <input value={form.tagline} onChange={(e) => updateForm({ ...form, tagline: e.target.value })}
                         className="mt-1 w-full rounded-xl border border-slate-300 bg-transparent px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700" />
                 </div>
 
                 <div>
                     <label className="text-sm font-medium">Introduction</label>
-                    <textarea rows={3} value={form.introduction} onChange={(e) => setForm({ ...form, introduction: e.target.value })}
+                    <textarea rows={3} value={form.introduction} onChange={(e) => updateForm({ ...form, introduction: e.target.value })}
                         className="mt-1 w-full rounded-xl border border-slate-300 bg-transparent px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700" />
                 </div>
                 <p className="text-sm text-slate-400">

@@ -3,6 +3,7 @@ import { UnsavedChangesContext } from './unsavedChanges'
 
 export const UnsavedChangesProvider = ({ children }) => {
     const [isDirty, setIsDirty] = useState(false)
+    const [saveChanges, setSaveChanges] = useState(null)
 
     useEffect(() => {
         const handleBeforeUnload = (event) => {
@@ -16,7 +17,7 @@ export const UnsavedChangesProvider = ({ children }) => {
     }, [isDirty])
 
     return (
-        <UnsavedChangesContext.Provider value={{ isDirty, setIsDirty }}>
+        <UnsavedChangesContext.Provider value={{ isDirty, setIsDirty, saveChanges, setSaveChanges }}>
             {children}
         </UnsavedChangesContext.Provider>
     )
