@@ -30,53 +30,36 @@ function App() {
       <AuthProvider>
         <BrowserRouter>
           <Toaster position="top-right" />
-          <Routes>
+         <Routes>
+  <Route path="/" element={<Home />} />
+  <Route path="/projects/:slug" element={<ProjectDetails />} />
+  <Route path="/admin/login" element={<AdminLogin />} />
 
-            <Route
-              path="/admin"
-              element={
-                <ProtectedRoute>
-                  <AdminLayout />
-                </ProtectedRoute>
-              }
-            >
-              <Route path="dashboard" element={<AdminDashboard />} />
-              <Route path="projects" element={<AdminProjects />} />
-              <Route path="projects/:id" element={<ProjectForm />} />
-              <Route path="skills" element={<AdminSkills />} />
-              <Route path="education" element={<AdminEducation />} />
-              <Route path="experience" element={<AdminExperience />} />
-              <Route path="achievements" element={<AdminAchievements />} />
-              <Route path="certificates" element={<AdminCertificates />} />
-              <Route path="publications" element={<AdminPublications />} />
-              <Route path="social-links" element={<AdminSocialLinks />} />
-              <Route path="hero" element={<HeroEditor />} />
-              <Route path="about" element={<AboutEditor />} />
-              <Route path="resume" element={<AdminResume />} />
-              <Route path="messages" element={<AdminMessages />} />
-              <Route path="settings" element={<AdminSettings />} />
-              {/* hero, about, skills, education, experience, projects, achievements,
-      certificates, publications, resume, social-links, messages, settings
-      — added over the next steps */}
-            </Route>
-          </Routes>
-
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/projects/:slug" element={<ProjectDetails />} />
-
-            <Route path="/admin/login" element={<AdminLogin />} />
-            <Route
-              path="/admin"
-              element={
-                <ProtectedRoute>
-                  <AdminLayout />
-                </ProtectedRoute>
-              }
-            >
-              {/* more admin child routes added in the admin dashboard step */}
-            </Route>
-          </Routes>
+  <Route
+    path="/admin"
+    element={
+      <ProtectedRoute>
+        <AdminLayout />
+      </ProtectedRoute>
+    }
+  >
+    <Route path="dashboard" element={<AdminDashboard />} />
+    <Route path="projects" element={<AdminProjects />} />
+    <Route path="projects/:id" element={<ProjectForm />} />
+    <Route path="skills" element={<AdminSkills />} />
+    <Route path="education" element={<AdminEducation />} />
+    <Route path="experience" element={<AdminExperience />} />
+    <Route path="achievements" element={<AdminAchievements />} />
+    <Route path="certificates" element={<AdminCertificates />} />
+    <Route path="publications" element={<AdminPublications />} />
+    <Route path="social-links" element={<AdminSocialLinks />} />
+    <Route path="hero" element={<HeroEditor />} />
+    <Route path="about" element={<AboutEditor />} />
+    <Route path="resume" element={<AdminResume />} />
+    <Route path="messages" element={<AdminMessages />} />
+    <Route path="settings" element={<AdminSettings />} />
+  </Route>
+</Routes>
 
         </BrowserRouter>
       </AuthProvider>
