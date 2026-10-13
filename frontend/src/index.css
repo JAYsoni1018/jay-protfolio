@@ -5,11 +5,15 @@
 :root {
   --color-bg: #ffffff;
   --color-text: #0f172a;
+  --login-input-autofill-bg: #ffffff;
+  --login-input-autofill-text: #0f172a;
 }
 
 .dark {
   --color-bg: #0b0f19;
   --color-text: #e2e8f0;
+  --login-input-autofill-bg: #0f172a;
+  --login-input-autofill-text: #e2e8f0;
 }
 
 body {
@@ -29,6 +33,19 @@ body {
 
 input[type="date"]::-webkit-calendar-picker-indicator {
   filter: invert(0.5);
+}
+
+.admin-login-input:-webkit-autofill,
+.admin-login-input:-webkit-autofill:hover,
+.admin-login-input:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--login-input-autofill-text);
+  -webkit-box-shadow: 0 0 0 1000px var(--login-input-autofill-bg) inset;
+  caret-color: var(--login-input-autofill-text);
+}
+
+.admin-login-input:-moz-autofill {
+  background-color: var(--login-input-autofill-bg);
+  color: var(--login-input-autofill-text);
 }
 
 label:has(+ :is(input, textarea, select):required, + div > :is(input, textarea, select):required)::after {

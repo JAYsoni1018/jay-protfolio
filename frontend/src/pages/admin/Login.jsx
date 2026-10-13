@@ -49,29 +49,35 @@ const AdminLogin = () => {
                                 placeholder="Email"
                                 value={form.email}
                                 onChange={(e) => setForm({ ...form, email: e.target.value })}
-                                className="w-full rounded-xl border border-slate-300 bg-transparent py-3 pl-10 pr-4 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700"
+                                className="admin-login-input w-full rounded-xl border border-slate-300 bg-transparent py-3 pl-10 pr-4 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:text-slate-100"
                             />
                         </div>
                     </div>
 
-                    <div className="relative">
-                        <Lock size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
-                        <input
-                            type={showPassword ? 'text' : 'password'}
-                            required
-                            placeholder="Password"
-                            value={form.password}
-                            onChange={(e) => setForm({ ...form, password: e.target.value })}
-                            className="w-full rounded-xl border border-slate-300 bg-transparent py-3 pl-10 pr-10 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700"
-                        />
-                        <button
-                            type="button"
-                            onClick={() => setShowPassword((s) => !s)}
-                            className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
-                            aria-label={showPassword ? 'Hide password' : 'Show password'}
-                        >
-                            {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                        </button>
+                    <div>
+                        <label htmlFor="login-password" className="mb-1 block text-sm font-medium">
+                            Password  
+                        </label>
+                        <div className="relative">
+                            <Lock size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                            <input
+                                id="login-password"
+                                type={showPassword ? 'text' : 'password'}
+                                required
+                                placeholder="Password"
+                                value={form.password}
+                                onChange={(e) => setForm({ ...form, password: e.target.value })}
+                                className="admin-login-input w-full rounded-xl border border-slate-300 bg-transparent py-3 pl-10 pr-10 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:text-slate-100"
+                            />
+                            <button
+                                type="button"
+                                onClick={() => setShowPassword((s) => !s)}
+                                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+                                aria-label={showPassword ? 'Hide password' : 'Show password'}
+                            >
+                                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                            </button>
+                        </div>
                     </div>
 
                     <button
